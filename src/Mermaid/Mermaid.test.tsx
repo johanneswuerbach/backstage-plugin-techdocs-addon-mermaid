@@ -13,8 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { createRouteRef } from '@backstage/core-plugin-api';
 
-export const rootRouteRef = createRouteRef({
-  id: 'techdocs-addon-mermaid',
+import { TechDocsAddonTester } from '@backstage/plugin-techdocs-addons-test-utils';
+
+import React from 'react';
+
+import { fireEvent, waitFor } from '@testing-library/react';
+
+import { Mermaid } from '../plugin';
+
+describe('TextSize', () => {
+  it('renders without exploding', async () => {
+    const { getByText } = await TechDocsAddonTester.buildAddonsInTechDocs([
+      <Mermaid />,
+    ])
+      .withDom(<body>TEST_CONTENT</body>)
+      .renderWithEffects();
+
+    expect(getByText('TEST_CONTENT')).toBeInTheDocument();
+  });
 });

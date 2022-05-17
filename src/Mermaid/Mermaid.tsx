@@ -35,6 +35,11 @@ export const MermaidAddon = ({}: MermaidProps) => {
 
   useEffect(() => {
     highlightTables.forEach(highlightTable => {
+      // Mermaid is currently classified as "text"
+      if (!highlightTable.classList.contains('language-text')) {
+        return;
+      }
+
       // Skip already processed
       if (highlightTable.style.display === 'none') {
         return

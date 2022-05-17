@@ -20,13 +20,16 @@ import {
 } from '@backstage/plugin-techdocs-react';
 
 import { MermaidAddon, MermaidProps } from './Mermaid';
-import { rootRouteRef } from './routes';
+
+/**
+ * The TechDocs addons mermaid plugin
+ *
+ * @public
+ */
+
 
 export const techdocsAddonMermaidPlugin = createPlugin({
   id: 'techdocs-addon-mermaid',
-  routes: {
-    root: rootRouteRef,
-  },
 });
 
 /**
