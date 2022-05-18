@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useShadowRootElements } from '@backstage/plugin-techdocs-react';
 import mermaid from 'mermaid'
 import { isMermaidCode } from './hooks';

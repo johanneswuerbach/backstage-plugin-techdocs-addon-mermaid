@@ -13,15 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// import React from 'react';
-// import { createDevApp } from '@backstage/dev-utils';
-// import { techdocsAddonMermaidPlugin, TechdocsAddonMermaidPage } from '../src/plugin';
+import { createDevApp } from '@backstage/dev-utils';
+import { techdocsAddonMermaidPlugin } from '../src/plugin';
 
-// createDevApp()
-//   .registerPlugin(techdocsAddonMermaidPlugin)
-//   .addPage({
-//     element: <TechdocsAddonMermaidPage />,
-//     title: 'Root Page',
-//     path: '/techdocs-addon-mermaid'
-//   })
-//   .render();
+createDevApp()
+  .registerPlugin(techdocsAddonMermaidPlugin)
+  .render();

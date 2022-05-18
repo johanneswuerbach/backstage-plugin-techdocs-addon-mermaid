@@ -18,8 +18,6 @@ import { TechDocsAddonTester } from '@backstage/plugin-techdocs-addons-test-util
 
 import React from 'react';
 
-import { fireEvent, waitFor } from '@testing-library/react';
-
 import { Mermaid } from '../plugin';
 
 describe('TextSize', () => {
