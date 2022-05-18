@@ -36,9 +36,11 @@ export const MermaidAddon = ({}: MermaidProps) => {
   useEffect(() => {
     highlightTables.forEach(highlightTable => {
       // Mermaid is currently classified as "text"
-      if (!highlightTable.classList.contains('language-text')) {
-        return;
-      }
+      // https://github.com/backstage/backstage/pull/11447 which adds this class isn't
+      // shipped yet.
+      // if (!highlightTable.classList.contains('language-text')) {
+      //   return;
+      // }
 
       // Skip already processed
       if (highlightTable.style.display === 'none') {
