@@ -1,6 +1,6 @@
 # backstage-plugin-techdocs-addon-mermaid
 
-The backstage-plugin-techdocs-addon-mermaid allows rendering of [Mermaid](https://mermaid-js.github.io/) diagrams
+The `backstage-plugin-techdocs-addon-mermaid` allows rendering of [Mermaid](https://mermaid-js.github.io/) diagrams
 within [Backstage TechDocs](https://backstage.io/docs/features/techdocs/techdocs-overview)
 
 This plugin is a [Backstage TechDocs Addon](https://backstage.io/docs/features/techdocs/addons), which requires
