@@ -14,6 +14,4 @@
  * limitations under the License.
  */
 export { techdocsAddonMermaidPlugin, Mermaid } from './plugin';
-export type {
-  MermaidProps,
-} from './Mermaid';
+export type { MermaidProps } from './Mermaid';

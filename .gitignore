@@ -1,3 +1,5 @@
 dist/
 dist-types/
 node_modules
+.idea/
+app-config.yaml
