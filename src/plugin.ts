@@ -18,8 +18,9 @@ import {
   createTechDocsAddonExtension,
   TechDocsAddonLocations,
 } from '@backstage/plugin-techdocs-react';
+import mermaidAPI from 'mermaid/mermaidAPI';
 
-import { MermaidAddon, MermaidProps } from './Mermaid';
+import { MermaidAddon } from './Mermaid';
 
 /**
  * The TechDocs addons mermaid plugin
@@ -39,7 +40,7 @@ export const techdocsAddonMermaidPlugin = createPlugin({
  */
 
  export const Mermaid = techdocsAddonMermaidPlugin.provide(
-  createTechDocsAddonExtension<MermaidProps>({
+  createTechDocsAddonExtension<mermaidAPI.Config>({
     name: 'MermaidDiagram',
     location: TechDocsAddonLocations.Content,
     component: MermaidAddon,
