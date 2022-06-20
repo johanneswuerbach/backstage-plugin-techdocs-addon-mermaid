@@ -19,7 +19,8 @@ import {
   TechDocsAddonLocations,
 } from '@backstage/plugin-techdocs-react';
 
-import { MermaidAddon, MermaidProps } from './Mermaid';
+import { MermaidAddon } from './Mermaid';
+import type { MermaidProps } from './Mermaid';
 
 /**
  * The TechDocs addons mermaid plugin
