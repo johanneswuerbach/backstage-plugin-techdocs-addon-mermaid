@@ -18,11 +18,8 @@ import { useEffect } from 'react';
 import { useShadowRootElements } from '@backstage/plugin-techdocs-react';
 import mermaid from 'mermaid'
 import { isMermaidCode } from './hooks';
+import { MermaidProps } from './props';
 
-/**
- * @public
- */
-export type MermaidProps = {};
 
 /**
  * Show report issue button when text is highlighted
@@ -30,7 +27,7 @@ export type MermaidProps = {};
 
 let diagramId = 0
 
-export const MermaidAddon = ({}: MermaidProps) => {
+export const MermaidAddon = (properties: MermaidProps) => {
   const highlightTables = useShadowRootElements<HTMLDivElement>(['.highlighttable']);
 
   useEffect(() => {
@@ -68,11 +65,14 @@ export const MermaidAddon = ({}: MermaidProps) => {
 
       const id = `mermaid-${diagramId++}`
 
+      if (properties?.config) {
+        mermaid.initialize(properties?.config);
+      }
       mermaid.render(id, diagramText, (svgGraph: string) => {
         diagramElement.innerHTML = svgGraph
       });
     });
-  }, [highlightTables]);
+  }, [highlightTables, properties]);
 
   return null;
 };
