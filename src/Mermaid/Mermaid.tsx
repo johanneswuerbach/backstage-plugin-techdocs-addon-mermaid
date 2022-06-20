@@ -18,7 +18,7 @@ import { useEffect } from 'react';
 import { useShadowRootElements } from '@backstage/plugin-techdocs-react';
 import mermaid from 'mermaid'
 import { isMermaidCode } from './hooks';
-import mermaidAPI from 'mermaid/mermaidAPI';
+import { MermaidProps } from './props';
 
 
 /**
@@ -27,7 +27,7 @@ import mermaidAPI from 'mermaid/mermaidAPI';
 
 let diagramId = 0
 
-export const MermaidAddon = (properties: mermaidAPI.Config) => {
+export const MermaidAddon = (properties: MermaidProps) => {
   const highlightTables = useShadowRootElements<HTMLDivElement>(['.highlighttable']);
 
   useEffect(() => {
@@ -65,8 +65,8 @@ export const MermaidAddon = (properties: mermaidAPI.Config) => {
 
       const id = `mermaid-${diagramId++}`
 
-      if (properties) {
-        mermaid.initialize(properties);
+      if (properties?.config) {
+        mermaid.initialize(properties?.config);
       }
       mermaid.render(id, diagramText, (svgGraph: string) => {
         diagramElement.innerHTML = svgGraph

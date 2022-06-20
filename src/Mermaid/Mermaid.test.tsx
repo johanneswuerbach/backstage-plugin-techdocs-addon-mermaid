@@ -23,7 +23,7 @@ import { Mermaid } from '../plugin';
 describe('TextSize', () => {
   it('renders without exploding', async () => {
     const { getByText } = await TechDocsAddonTester.buildAddonsInTechDocs([
-      <Mermaid themeVariables={{ lineColor: '#00ff00' }} />,
+      <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
     ])
       .withDom(<body>TEST_CONTENT</body>)
       .renderWithEffects();
