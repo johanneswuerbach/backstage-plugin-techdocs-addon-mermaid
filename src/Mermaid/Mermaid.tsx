@@ -15,11 +15,28 @@
  */
 
 import { useEffect } from 'react';
+import { PaletteType, useTheme } from '@material-ui/core';
+
 import { useShadowRootElements } from '@backstage/plugin-techdocs-react';
 import mermaid from 'mermaid'
 import { isMermaidCode } from './hooks';
 import { MermaidProps } from './props';
+import { BackstageTheme } from '@backstage/theme';
+import { MermaidConfig } from 'mermaid';
 
+export function selectConfig(backstagePalette: PaletteType, properties: MermaidProps): MermaidConfig {
+  // Theme set directly in the Mermaid configuration takes
+  // precedence for backwards-compatibility
+  if(properties.config) {
+    return properties.config;
+  }
+
+  if(backstagePalette === 'light') {
+    return properties.lightConfig || {};
+  }
+
+  return properties.darkConfig || {};
+}
 
 /**
  * Show report issue button when text is highlighted
@@ -29,6 +46,7 @@ let diagramId = 0
 
 export const MermaidAddon = (properties: MermaidProps) => {
   const highlightTables = useShadowRootElements<HTMLDivElement>(['.highlighttable']);
+  const theme = useTheme<BackstageTheme>();
 
   useEffect(() => {
     highlightTables.forEach(highlightTable => {
@@ -65,14 +83,16 @@ export const MermaidAddon = (properties: MermaidProps) => {
 
       const id = `mermaid-${diagramId++}`
 
-      if (properties?.config) {
-        mermaid.initialize(properties?.config);
+      const config = selectConfig(theme.palette.type, properties);
+      if(config) {
+        mermaid.initialize(config);
       }
+
       mermaid.render(id, diagramText, (svgGraph: string) => {
         diagramElement.innerHTML = svgGraph
       });
     });
-  }, [highlightTables, properties]);
+  }, [highlightTables, properties, theme.palette.type]);
 
   return null;
 };
