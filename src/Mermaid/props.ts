@@ -1,3 +1,3 @@
-import mermaidAPI from 'mermaid/mermaidAPI';
+import { MermaidConfig } from 'mermaid';
 
-export type MermaidProps = { config?: mermaidAPI.Config }
+export type MermaidProps = { config?: MermaidConfig }
