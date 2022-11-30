@@ -19,8 +19,9 @@ import { TechDocsAddonTester } from '@backstage/plugin-techdocs-addons-test-util
 import React from 'react';
 
 import { Mermaid } from '../plugin';
+import { selectConfig } from './Mermaid';
 
-describe('TextSize', () => {
+describe('Mermaid', () => {
   it('renders without exploding', async () => {
     const { getByText } = await TechDocsAddonTester.buildAddonsInTechDocs([
       <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
@@ -29,5 +30,29 @@ describe('TextSize', () => {
       .renderWithEffects();
 
     expect(getByText('TEST_CONTENT')).toBeInTheDocument();
+  });
+
+  describe('selectConfig', () => {
+    const legacyConfig = { config: { fontFamily: 'legacy-config' } };
+    const lightConfig = { lightConfig: { fontFamily: 'light-config' } };
+    const darkConfig = { darkConfig: { fontFamily: 'dark-config' } };
+
+    it('legacy config is preferred for backwards-compatibility', () => {
+      let config = selectConfig('light', { ...legacyConfig });
+      expect(config).toEqual(legacyConfig.config);
+
+      config = selectConfig('light', { ...legacyConfig, ...lightConfig });
+      expect(config).toEqual(legacyConfig.config);
+    });
+
+    it('light config is selected for light palette', () => {
+      const config = selectConfig('light', { ...lightConfig, ...darkConfig });
+      expect(config).toEqual(lightConfig.lightConfig);
+    });
+
+    it('dark config is selected for dark palette', () => {
+      const config = selectConfig('dark', { ...lightConfig, ...darkConfig });
+      expect(config).toEqual(darkConfig.darkConfig);
+    });
   });
 });
