@@ -18,13 +18,11 @@ const mermaidStart =
   /^(\s*)(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|journey|gantt|pie|requirementDiagram|gitGraph)/;
 
 export const isMermaidCode = (code: string): boolean => {
-  if (code.startsWith("%%{init")) {
-    const codeSplitByDirectiveStart = code.split("%%");
+  if (code.startsWith('%%{init')) {
+    const codeSplitByDirectiveStart = code.split('%%');
 
-    if (codeSplitByDirectiveStart.length < 3)
-      return code.match(mermaidStart) !== null;
-
-    return code.split("%%")[2].match(mermaidStart) !== null;
+    if (codeSplitByDirectiveStart.length > 2)
+      return code.split('%%')[2].match(mermaidStart) !== null;
   }
 
   return code.match(mermaidStart) !== null;
