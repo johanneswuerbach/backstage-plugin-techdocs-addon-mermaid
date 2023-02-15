@@ -8,18 +8,23 @@ Backstage v1.2+
 
 ## Getting started
 
-Follow [the official documentation for TechDocs Addons](https://backstage.io/docs/features/techdocs/addons#installing-and-using-addons) to use this addon.
-
-```typescript jsx
-import { Mermaid } from 'backstage-plugin-techdocs-addon-mermaid';
-
-// ...
-{techDocsPage}
-<TechDocsAddons>
-  {/*...*/}
-  <Mermaid config={{ theme: 'forest', themeVariables: { lineColor: '#000000' } }} />
-</TechDocsAddons>
-```
+1. Follow [the official documentation for TechDocs Addons](https://backstage.io/docs/features/techdocs/addons#installing-and-using-addons) to enable addons for techdocs.
+2. Install this plugin in your backstage app. Run the following command from the root of your backstage installation:
+   ```
+   yarn add --cwd packages/app backstage-plugin-techdocs-addon-mermaid
+   ```
+3. Enable the addon in your application
+   ```typescript jsx
+   // packages/app/src/App.tsx
+   import { Mermaid } from 'backstage-plugin-techdocs-addon-mermaid';
+ 
+   // ...
+   {techDocsPage}
+   <TechDocsAddons>
+     {/*...*/}
+     <Mermaid config={{ theme: 'forest', themeVariables: { lineColor: '#000000' } }} />
+   </TechDocsAddons>
+    ```
 
 ## Use Mermaid in your TechDocs
 
