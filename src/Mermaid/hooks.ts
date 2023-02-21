@@ -14,8 +14,16 @@
  * limitations under the License.
  */
 
-const mermaidStart = /^(\s*)(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|journey|gantt|pie|requirementDiagram|gitGraph)/;
+const mermaidStart =
+  /^(\s*)(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|journey|gantt|pie|requirementDiagram|gitGraph)/;
 
 export const isMermaidCode = (code: string): boolean => {
-  return code.match(mermaidStart) !== null
-}
+  if (code.startsWith('%%{init')) {
+    const codeSplitByDirectiveStart = code.split('%%');
+
+    if (codeSplitByDirectiveStart.length > 2)
+      return code.split('%%')[2].match(mermaidStart) !== null;
+  }
+
+  return code.match(mermaidStart) !== null;
+};
