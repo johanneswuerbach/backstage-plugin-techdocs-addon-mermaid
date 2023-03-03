@@ -32,6 +32,16 @@ describe('Mermaid', () => {
     expect(getByText('TEST_CONTENT')).toBeInTheDocument();
   });
 
+  it.skip('renders fenced code blocks', async () => {
+    const { getByTestId } = await TechDocsAddonTester.buildAddonsInTechDocs([
+      <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
+    ])
+      .withDom(<body><pre className="mermaid" data-testid="mermaid-test"><code>something here</code></pre></body>)
+      .renderWithEffects();
+
+    expect(getByTestId('mermaid-test')).toHaveStyle('display: none')
+  });
+
   describe('selectConfig', () => {
     const legacyConfig = { config: { fontFamily: 'legacy-config' } };
     const lightConfig = { lightConfig: { fontFamily: 'light-config' } };

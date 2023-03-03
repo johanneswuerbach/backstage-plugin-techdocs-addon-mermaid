@@ -41,3 +41,18 @@ graph TD;
     C-->D;
 ```
 ~~~
+
+## Auto-Detection vs. Manual Detection
+
+By default, this plugin will autodetect diagrams based on the starting token of the code block. In some cases, however, this auto-detection is not sufficient, for example because of an unrecognized 
+diagram type or the use of front matter. In these cases, you can force the use of mermaid on blocks by adding configuration like this to your `mkdocs.yaml` file:
+
+```yaml
+markdown_extensions:
+  pymdownx.extra:
+    pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+```

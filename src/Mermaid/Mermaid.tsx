@@ -44,8 +44,29 @@ export function selectConfig(backstagePalette: PaletteType, properties: MermaidP
 
 let diagramId = 0
 
+const makeDiagram = (el: HTMLDivElement | HTMLPreElement, diagramText: string, backstagePalette: PaletteType, properties: MermaidProps) => {
+  el.style.display = 'none'
+
+  const diagramElement = document.createElement('div')
+  diagramElement.className = "mermaid"
+
+  el.parentNode?.insertBefore(diagramElement, el.nextSibling);
+
+  const id = `mermaid-${diagramId++}`
+
+  const config = selectConfig(backstagePalette, properties);
+  if(config) {
+    mermaid.initialize(config);
+  }
+
+  mermaid.render(id, diagramText, (svgGraph: string) => {
+    diagramElement.innerHTML = svgGraph
+  });
+}
+
 export const MermaidAddon = (properties: MermaidProps) => {
   const highlightTables = useShadowRootElements<HTMLDivElement>(['.highlighttable']);
+  const mermaidPreBlocks = useShadowRootElements<HTMLPreElement>(['.mermaid']);
   const theme = useTheme<BackstageTheme>();
 
   useEffect(() => {
@@ -71,25 +92,27 @@ export const MermaidAddon = (properties: MermaidProps) => {
         return
       }
 
-      highlightTable.style.display = 'none'
-
-      const diagramElement = document.createElement('div')
-      diagramElement.className = "mermaid"
-
-      highlightTable.parentNode?.insertBefore(diagramElement, highlightTable.nextSibling);
-
-      const id = `mermaid-${diagramId++}`
-
-      const config = selectConfig(theme.palette.type, properties);
-      if(config) {
-        mermaid.initialize(config);
-      }
-
-      mermaid.render(id, diagramText, (svgGraph: string) => {
-        diagramElement.innerHTML = svgGraph
-      });
+      makeDiagram(highlightTable, diagramText, theme.palette.type, properties)
     });
   }, [highlightTables, properties, theme.palette.type]);
+
+  useEffect(() => {
+    mermaidPreBlocks.forEach(mermaidPreBlock => {
+      // Skip already processed
+      if (mermaidPreBlock.style.display === 'none') {
+        return
+      }
+
+      const codeBlock = mermaidPreBlock.querySelector('code')
+      if (!codeBlock) {
+        return
+      }
+
+      const diagramText = codeBlock.innerText
+
+      makeDiagram(mermaidPreBlock, diagramText, theme.palette.type, properties)
+    });
+  }, [mermaidPreBlocks, properties, theme.palette.type]);
 
   return null;
 };
