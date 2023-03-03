@@ -10,6 +10,14 @@ describe("isMermaidCode", () => {
       expect(result).toBe(true);
     });
 
+    it("C4Context mermaid code exists", () => {
+      const mermaidCode = "C4Context foo foo2 foo-->foo2";
+
+      const result = isMermaidCode(mermaidCode);
+
+      expect(result).toBe(true);
+    });
+
     it("mermaid code exists with directive", () => {
       const mermaidCode = `%%{init: { 'logLevel': 'debug', 'theme': 'dark' } }%%
 graph LR
