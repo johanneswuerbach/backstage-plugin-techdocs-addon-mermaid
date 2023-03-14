@@ -9,13 +9,19 @@ Backstage v1.2+
 ## Getting started
 
 1. Follow [the official documentation for TechDocs Addons](https://backstage.io/docs/features/techdocs/addons#installing-and-using-addons) to enable addons for techdocs.
-2. Install this plugin in your backstage app. Run the following command from the root of your backstage installation:
+2. For your backstage instance, make sure you have installed `mkdocs-techdocs-core` >= 1.0.2. Older versions will not render mermaid correctly!
+    ```sh
+    pip3 install mkdocs-techdocs-core==1.0.2
+    ```
+
+3. Install this plugin in your backstage app. Run the following command from the root of your backstage installation:
    ```
    yarn add --cwd packages/app backstage-plugin-techdocs-addon-mermaid
    ```
-3. Enable the addon in your application
+4. Enable the addon within techdocs viewer's within `App.tsx` and `EntityPage.tsx`
    ```typescript jsx
    // packages/app/src/App.tsx
+   // packages/app/src/components/catalog/EntityPage.tsx
    import { Mermaid } from 'backstage-plugin-techdocs-addon-mermaid';
  
    // ...
