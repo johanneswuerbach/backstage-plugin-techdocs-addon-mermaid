@@ -66,6 +66,7 @@ const makeDiagram = (el: HTMLDivElement | HTMLPreElement, diagramText: string, b
 
 export const MermaidAddon = (properties: MermaidProps) => {
   const highlightTables = useShadowRootElements<HTMLDivElement>(['.highlighttable']);
+  const highlightDivs = useShadowRootElements<HTMLDivElement>(['.highlight']);
   const mermaidPreBlocks = useShadowRootElements<HTMLPreElement>(['.mermaid']);
   const theme = useTheme<BackstageTheme>();
 
@@ -95,6 +96,39 @@ export const MermaidAddon = (properties: MermaidProps) => {
       makeDiagram(highlightTable, diagramText, theme.palette.type, properties)
     });
   }, [highlightTables, properties, theme.palette.type]);
+
+  useEffect(() => {
+    highlightDivs.forEach(highlightDiv => {
+      if (!highlightDiv.classList.contains('language-text')) {
+         return;
+      }
+
+      // Skip already processed
+      if (highlightDiv.style.display === 'none') {
+        return
+      }
+
+      // skip mkdocs-material < 9 code blocks (handled above)
+      const table = highlightDiv.querySelector('table')
+      if (!table) {
+        return
+      }
+
+      const codeBlock = highlightDiv.querySelector('code')
+      if (!codeBlock) {
+        return
+      }
+
+      const diagramText = codeBlock.innerText
+
+      // Ideally we could detect mermaid based on some annotation, but use a regex for now
+      if (!isMermaidCode(diagramText)) {
+        return
+      }
+
+      makeDiagram(highlightDiv, diagramText, theme.palette.type, properties)
+    });
+  }, [highlightDivs, properties, theme.palette.type]);
 
   useEffect(() => {
     mermaidPreBlocks.forEach(mermaidPreBlock => {
