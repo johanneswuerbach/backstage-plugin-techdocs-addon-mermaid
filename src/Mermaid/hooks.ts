@@ -15,7 +15,7 @@
  */
 
 const mermaidStart =
-  /^(\s*)(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|journey|gantt|pie|requirementDiagram|gitGraph|C4Context)/;
+  /^(\s*)(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|journey|gantt|pie|requirementDiagram|gitGraph|C4Contex|timeline)/;
 
 export const isMermaidCode = (code: string): boolean => {
   if (code.startsWith('%%{init')) {
