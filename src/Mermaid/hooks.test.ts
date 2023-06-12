@@ -27,6 +27,12 @@ A-->B`;
 
       expect(result).toBe(true);
     });
+
+    it("mermade code exists with timeline", () => {
+      const mermaidCode = "timeline April 2023 : Phase 1: Clearwater";
+
+      expect(isMermaidCode(mermaidCode)).toBe(true);
+    })
   });
 
   describe("returns false when", () => {
