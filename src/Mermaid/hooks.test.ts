@@ -18,6 +18,30 @@ describe("isMermaidCode", () => {
       expect(result).toBe(true);
     });
 
+    it("C4Container mermaid code exists", () => {
+      const mermaidCode = "C4Container foo foo2 foo-->foo2";
+
+      expect(isMermaidCode(mermaidCode)).toBe(true);
+    })
+
+    it("C4Component mermaid code exists", () => {
+      const mermaidCode = "C4Component foo foo2 foo-->foo2";
+
+      expect(isMermaidCode(mermaidCode)).toBe(true);
+    })
+
+    it("C4Dynamic mermaid code exists", () => {
+      const mermaidCode = "C4Dynamic foo foo2 foo-->foo2";
+
+      expect(isMermaidCode(mermaidCode)).toBe(true);
+    })
+
+    it("C4Deployment mermaid code exists", () => {
+      const mermaidCode = "C4Deployment foo foo2 foo-->foo2";
+
+      expect(isMermaidCode(mermaidCode)).toBe(true);
+    })
+
     it("mermaid code exists with directive", () => {
       const mermaidCode = `%%{init: { 'logLevel': 'debug', 'theme': 'dark' } }%%
 graph LR
