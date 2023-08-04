@@ -44,7 +44,7 @@ export function selectConfig(backstagePalette: PaletteType, properties: MermaidP
 
 let diagramId = 0
 
-const makeDiagram = (el: HTMLDivElement | HTMLPreElement, diagramText: string, backstagePalette: PaletteType, properties: MermaidProps) => {
+const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: string, backstagePalette: PaletteType, properties: MermaidProps) => {
   el.style.display = 'none'
 
   const diagramElement = document.createElement('div')
@@ -59,10 +59,9 @@ const makeDiagram = (el: HTMLDivElement | HTMLPreElement, diagramText: string, b
     mermaid.initialize(config);
   }
 
-  mermaid.renderAsync(id, diagramText, (svgGraph: string, bindFunctions?: ((element: Element) => void)) => {
-    diagramElement.innerHTML = svgGraph
-    bindFunctions?.(diagramElement);
-  });
+  const { svg, bindFunctions } = await mermaid.render(id, diagramText);
+  diagramElement.innerHTML = svg
+  bindFunctions?.(diagramElement);
 }
 
 export const MermaidAddon = (properties: MermaidProps) => {
