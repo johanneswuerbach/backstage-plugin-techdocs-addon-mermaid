@@ -59,8 +59,9 @@ const makeDiagram = (el: HTMLDivElement | HTMLPreElement, diagramText: string, b
     mermaid.initialize(config);
   }
 
-  mermaid.render(id, diagramText, (svgGraph: string) => {
+  mermaid.renderAsync(id, diagramText, (svgGraph: string, bindFunctions?: ((element: Element) => void)) => {
     diagramElement.innerHTML = svgGraph
+    bindFunctions?.(diagramElement);
   });
 }
 
