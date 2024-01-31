@@ -86,7 +86,7 @@ export const MermaidAddon = (properties: MermaidProps) => {
         return
       }
 
-      const diagramText = codeBlock.innerText
+      const diagramText = codeBlock.textContent || ''
 
       // Ideally we could detect mermaid based on some annotation, but use a regex for now
       if (!isMermaidCode(diagramText)) {
@@ -119,7 +119,7 @@ export const MermaidAddon = (properties: MermaidProps) => {
         return
       }
 
-      const diagramText = codeBlock.innerText
+      const diagramText = codeBlock.textContent || ''
 
       // Ideally we could detect mermaid based on some annotation, but use a regex for now
       if (!isMermaidCode(diagramText)) {
@@ -142,7 +142,7 @@ export const MermaidAddon = (properties: MermaidProps) => {
         return
       }
 
-      const diagramText = codeBlock.innerText
+      const diagramText = codeBlock.textContent || ''
 
       makeDiagram(mermaidPreBlock, diagramText, theme.palette.type, properties)
     });

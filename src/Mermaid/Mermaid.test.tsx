@@ -32,11 +32,44 @@ describe('Mermaid', () => {
     expect(getByText('TEST_CONTENT')).toBeInTheDocument();
   });
 
-  it.skip('renders fenced code blocks', async () => {
+  it('renders pre blocks with mermaid class', async () => {
     const { getByTestId } = await TechDocsAddonTester.buildAddonsInTechDocs([
       <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
     ])
-      .withDom(<body><pre className="mermaid" data-testid="mermaid-test"><code>something here</code></pre></body>)
+      .withDom(<body>
+        <pre className="mermaid" data-testid="mermaid-test">
+          <code>flowchart LR</code>
+        </pre>
+      </body>)
+      .renderWithEffects();
+
+    expect(getByTestId('mermaid-test')).toHaveStyle('display: none')
+  });
+
+  it('renders highlight tables', async () => {
+    const { getByTestId } = await TechDocsAddonTester.buildAddonsInTechDocs([
+      <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
+    ])
+      .withDom(<body>
+        <div className="highlighttable language-text" data-testid="mermaid-test">
+          <code>flowchart LR</code>
+        </div>
+      </body>)
+      .renderWithEffects();
+
+    expect(getByTestId('mermaid-test')).toHaveStyle('display: none')
+  });
+
+  it('renders div highlights', async () => {
+    const { getByTestId } = await TechDocsAddonTester.buildAddonsInTechDocs([
+      <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
+    ])
+      .withDom(<body>
+        <div className="highlight language-text" data-testid="mermaid-test">
+          <table />
+          <code>flowchart LR</code>
+        </div>
+      </body>)
       .renderWithEffects();
 
     expect(getByTestId('mermaid-test')).toHaveStyle('display: none')

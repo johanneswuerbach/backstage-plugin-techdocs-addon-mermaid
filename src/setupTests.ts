@@ -15,3 +15,11 @@
  */
 import '@testing-library/jest-dom';
 import 'cross-fetch/polyfill';
+
+Element.prototype.scrollIntoView = jest.fn();
+window.scroll = jest.fn();
+
+// Workaround missing jsdom svg support
+SVGGraphicsElement.prototype.getBBox = jest.fn(() => {
+  return {} as DOMRect;
+});
