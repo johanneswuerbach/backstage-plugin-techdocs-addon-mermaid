@@ -78,7 +78,7 @@ describe('Mermaid', () => {
   describe('selectConfig', () => {
     const legacyConfig = { config: { fontFamily: 'legacy-config' } };
     const lightConfig = { lightConfig: { fontFamily: 'light-config' } };
-    const darkConfig = { darkConfig: { fontFamily: 'dark-config' } };
+    const darkConfig = { darkConfig: { fontFamily: 'dark-config', theme: 'dark' } };
 
     it('legacy config is preferred for backwards-compatibility', () => {
       let config = selectConfig('light', { ...legacyConfig });
@@ -96,6 +96,11 @@ describe('Mermaid', () => {
     it('dark config is selected for dark palette', () => {
       const config = selectConfig('dark', { ...lightConfig, ...darkConfig });
       expect(config).toEqual(darkConfig.darkConfig);
+    });
+
+    it('dark theme is set by default when variant is dark', () => {
+      const config = selectConfig('dark', {});
+      expect(config).toEqual({ theme: 'dark'});
     });
   });
 });
