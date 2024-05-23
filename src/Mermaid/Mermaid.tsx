@@ -35,7 +35,7 @@ export function selectConfig(backstagePalette: PaletteType, properties: MermaidP
     return properties.lightConfig || {};
   }
 
-  return properties.darkConfig || {};
+  return Object.assign({ theme: 'dark' }, properties.darkConfig);
 }
 
 /**
