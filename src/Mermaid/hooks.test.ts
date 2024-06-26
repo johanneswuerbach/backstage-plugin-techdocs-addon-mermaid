@@ -70,6 +70,16 @@ classDiagram
       expect(result).toBe(true);
     });
 
+    it("mermaid code exists with comment", () => {
+      const mermaidCode = `%% mermaid code with comment
+graph LR
+A-->B`;
+
+      const result = isMermaidCode(mermaidCode);
+
+      expect(result).toBe(true);
+    });
+
   });
 
   describe("returns false when", () => {
