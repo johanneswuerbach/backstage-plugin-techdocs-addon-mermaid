@@ -57,6 +57,19 @@ A-->B`;
 
       expect(isMermaidCode(mermaidCode)).toBe(true);
     })
+
+    it("mermaid code exists with frontmatter", () => {
+      const mermaidCode = `---
+title: class diagram with frontmatter
+---
+classDiagram
+    direction LR`;
+
+      const result = isMermaidCode(mermaidCode);
+
+      expect(result).toBe(true);
+    });
+
   });
 
   describe("returns false when", () => {
