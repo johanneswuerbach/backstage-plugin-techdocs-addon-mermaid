@@ -65,14 +65,32 @@ markdown_extensions:
 
 ## Contributors Guide
 
-If you want to do full end-to-end test and development, follow the instructions below.
+After making changes to the plugin and having unit tests pass, to do manual end-to-end testing, follow the instructions below.
 
-1. This plugin can be developed in the context of an existing Backstage deployment or a [new local deployment](https://backstage.io/docs/getting-started/#1-create-your-backstage-app).
-1. Fork and clone this repo into the plugins folder of your app.
-1. To have yarn link the local version of the addon instead of the version on npm.
-  1. Change directory to the new plugins/backstage-plugin-techdocs-addon-mermaid folder, run `yarn link`
-  2. Go back to the main backstage directory and run `yarn link "backstage-plugin-techdocs-addon-mermaid`
-1. Run `yarn install` in the repo.
-1. Follow the above the instructions to add the plugin to your TechDocs pages in your Backstage deployment.
-2. 
+This plugin can be developed in the context of an existing Backstage deployment or a [new local deployment](https://backstage.io/docs/getting-started/#1-create-your-backstage-app).
+
+1. Fork and clone this repo into the plugins folder of your Backstage codebase.
+2. To have yarn link the local version of the addon instead of the version on npm.
+  1. Change directories to the new `plugins/backstage-plugin-techdocs-addon-mermaid folder` and run `yarn link`.
+  2. Go up to the main Backstage directory and run `yarn link "backstage-plugin-techdocs-addon-mermaid`.
+3. Run `yarn install` in the Backstage root.
+4. Follow the earlier instructions to add the plugin to your TechDocs pages in your Backstage deployment such as `app.tsx`.
+
+You can either use the [TechDocs CLI](https://backstage.io/docs/features/techdocs/cli/) to test against a local docs folder. You will need to customize the preview app bundle for that to work as the addon is not included in the [standard bundle](https://github.com/backstage/techdocs-cli/blob/main/packages/embedded-techdocs-app/src/App.tsx).
+
+Otherwise, you will need to register a component via URL like any other Backstage component and view that component's TechDocs.
+
+For example, to use the SampleDocs component in this repo:
+
+1. Generate a [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) for *public repos*.
+2. Add the [GitHub integration](https://backstage.io/docs/integrations/github/locations) to your `app-config.local.yaml`.
+3. `yarn dev` in the root of your Backstage codebase.
+4. To register the demo docs, browse to `http://localhost:3000/catalog-import`
+5. Register the URL pointing to the SampleDocs/catalog-info.yaml, example: `https://github.com/johanneswuerbach/backstage-plugin-techdocs-addon-mermaid/blob/main/sampledocs/catalog-info.yaml`
+6. To iterate:
+   1. Create a branch for the addon.
+   2. Change the contents of the sampledocs.
+   3. Commit and push.
+   4. Register the catalog-info.yaml for your branch instead (keep in mind any security changes required for your personal access token).
+   5. Iterate changes to markdown and changes to the plugin.
    
