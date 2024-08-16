@@ -18,6 +18,14 @@ describe("isMermaidCode", () => {
       expect(result).toBe(true);
     });
 
+    it("Mindmap mermaid code exists", () => {
+      const mermaidCode = "mindmap mindmap root((foo bar)) Baz";
+
+      const result = isMermaidCode(mermaidCode);
+
+      expect(result).toBe(true);
+    });
+
     it("C4Container mermaid code exists", () => {
       const mermaidCode = "C4Container foo foo2 foo-->foo2";
 

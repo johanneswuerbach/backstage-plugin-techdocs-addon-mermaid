@@ -62,3 +62,17 @@ markdown_extensions:
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
 ```
+
+## Contributors Guide
+
+If you want to do full end-to-end test and development, follow the instructions below.
+
+1. This plugin can be developed in the context of an existing Backstage deployment or a [new local deployment](https://backstage.io/docs/getting-started/#1-create-your-backstage-app).
+1. Fork and clone this repo into the plugins folder of your app.
+1. To have yarn link the local version of the addon instead of the version on npm.
+  1. Change directory to the new plugins/backstage-plugin-techdocs-addon-mermaid folder, run `yarn link`
+  2. Go back to the main backstage directory and run `yarn link "backstage-plugin-techdocs-addon-mermaid`
+1. Run `yarn install` in the repo.
+1. Follow the above the instructions to add the plugin to your TechDocs pages in your Backstage deployment.
+2. 
+   
