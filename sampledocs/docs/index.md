@@ -1,6 +1,8 @@
-# Examples
+# Example Supported Mermaid Diagrams
 
-# Combined Mermaid Diagram Example
+## Supported by the Add On
+
+## Graph/Flowchart
 
 ```mermaid
 graph TD
@@ -11,6 +13,8 @@ graph TD
     C --> E[Finish]
 ```
 
+### Sequence Diagram
+
 ```mermaid
 sequenceDiagram
     participant Alice
@@ -19,6 +23,8 @@ sequenceDiagram
     Bob-->>Alice: I'm good thanks!
     Alice->>Bob: Great to hear
 ```
+
+### Gantt
 
 ```mermaid
 gantt
@@ -30,6 +36,8 @@ gantt
     Task 3           : 2023-02-11  , 20d
     Task 4           : 2023-02-21  , 20d
 ```
+
+### Class Diagram
 
 ```mermaid
 classDiagram
@@ -44,6 +52,8 @@ classDiagram
     Animal <|-- Dog
 ```
 
+### State Diagram
+
 ```mermaid
 stateDiagram-v2
     [*] --> Idle
@@ -51,6 +61,8 @@ stateDiagram-v2
     Working --> Idle : stop
     Working --> Failed : error
 ```
+
+### Pie
 
 ```mermaid
 pie
@@ -61,12 +73,16 @@ pie
     "C++" : 10
 ```
 
+### erDiagram
+
 ```mermaid
 erDiagram
     CUSTOMER ||--o{ ORDER : places
     ORDER ||--|{ LINE-ITEM : contains
     CUSTOMER }|..|{ DELIVERY-ADDRESS : uses
 ```
+
+### Journey
 
 ```mermaid
 journey
@@ -79,6 +95,8 @@ journey
       Go downstairs: 5: Me
       Sit down: 5: Me
 ```
+
+### Quadrant Chart
 
 ```mermaid
 quadrantChart
@@ -97,8 +115,10 @@ quadrantChart
     Campaign F: [0.35, 0.78]
 ```
 
+### Requirement Diagram
+
 ```mermaid
-    requirementDiagram
+requirementDiagram
 
     requirement test_req {
     id: 1
@@ -114,6 +134,8 @@ quadrantChart
     test_entity - satisfies -> test_req
 ```
 
+### GitGraph
+
 ```mermaid
 gitGraph
    commit
@@ -127,6 +149,8 @@ gitGraph
    commit
    commit
 ```
+
+### MindMap
 
 ```mermaid
 mindmap
@@ -148,6 +172,8 @@ mindmap
       Mermaid
 ```
 
+### Timeline
+
 ```mermaid
 timeline
     title History of Social Media Platform
@@ -158,13 +184,7 @@ timeline
     2006 : Twitter
 ```
 
-```mermaid
-zenuml
-    title Demo
-    Alice->John: Hello John, how are you?
-    John->Alice: Great!
-    Alice->John: See you later!
-```
+### XYChart-Beta
 
 ```mermaid
 xychart-beta
@@ -174,6 +194,8 @@ xychart-beta
     bar [5000, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
     line [5000, 6000, 7500, 8200, 9500, 10500, 11000, 10200, 9200, 8500, 7000, 6000]
 ```
+
+### Block Beta
 
 ```mermaid
 block-beta
@@ -190,4 +212,16 @@ columns 1
   ID --> D
   C --> D
   style B fill:#969,stroke:#333,stroke-width:4px
+```
+
+## Not yet supported
+
+### ZenUml
+
+```mermaid
+zenuml
+    title Demo
+    Alice->John: Hello John, how are you?
+    John->Alice: Great!
+    Alice->John: See you later!
 ```

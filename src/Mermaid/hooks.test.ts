@@ -19,7 +19,31 @@ describe("isMermaidCode", () => {
     });
 
     it("Mindmap mermaid code exists", () => {
-      const mermaidCode = "mindmap mindmap root((foo bar)) Baz";
+      const mermaidCode = "mindmap root((foo bar)) Baz";
+
+      const result = isMermaidCode(mermaidCode);
+
+      expect(result).toBe(true);
+    });
+
+    it("Quadrant chart mermaid code exists", () => {
+      const mermaidCode = "quadrantChart x-axis Low Reach --> High Reach";
+
+      const result = isMermaidCode(mermaidCode);
+
+      expect(result).toBe(true);
+    });
+
+    it("xychart-beta chart mermaid code exists", () => {
+      const mermaidCode = "xychart-beta x-axis [jan, feb, mar, apr, may, jun, jul, aug, sep, oct, nov, dec]";
+
+      const result = isMermaidCode(mermaidCode);
+
+      expect(result).toBe(true);
+    });
+
+    it("Block-beta chart mermaid code exists", () => {
+      const mermaidCode = "block-beta columns 1 db((\"DB\"))";
 
       const result = isMermaidCode(mermaidCode);
 
