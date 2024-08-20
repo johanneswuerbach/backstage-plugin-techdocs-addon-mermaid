@@ -50,7 +50,7 @@ graph TD;
 
 ## Auto-Detection vs. Manual Detection
 
-By default, this plugin will autodetect diagrams based on the starting token of the code block. In some cases, however, this auto-detection is not sufficient, for example because of an unrecognized 
+By default, this plugin will autodetect diagrams based on the starting token of the code block. In some cases, however, this auto-detection is not sufficient, for example, because of an unrecognized 
 diagram type or the use of front matter. In these cases, you can force the use of mermaid on blocks by adding configuration like this to your `mkdocs.yaml` file:
 
 ```yaml
@@ -65,9 +65,9 @@ markdown_extensions:
 
 ## Contributors Guide
 
-After making changes to the plugin and having unit tests pass, to do manual end-to-end testing, follow the instructions below.
-
 This plugin can be developed in the context of an existing Backstage deployment or a [new local deployment](https://backstage.io/docs/getting-started/#1-create-your-backstage-app).
+
+### Setup for Deployment
 
 1. Fork and clone this repo into the plugins folder of your Backstage codebase.
 2. To have yarn link the local version of the addon instead of the version on npm.
@@ -76,10 +76,17 @@ This plugin can be developed in the context of an existing Backstage deployment 
 3. Run `yarn install` in the Backstage root.
 4. Follow the earlier instructions to add the plugin to your TechDocs pages in your Backstage deployment such as `app.tsx`.
 
-You can either use the [TechDocs CLI](https://backstage.io/docs/features/techdocs/cli/) to test against a local docs folder. You will need to customize the preview app bundle for that to work as the addon is not included in the [standard bundle](https://github.com/backstage/techdocs-cli/blob/main/packages/embedded-techdocs-app/src/App.tsx).
+### Manual Testing
 
-Otherwise, you will need to register a component via URL like any other Backstage component and view that component's TechDocs.
+After making changes to the plugin and having unit tests pass, to do manual end-to-end testing, follow the instructions below.
 
+#### Option #1 Techdocs CLI
+
+You can use the [TechDocs CLI](https://backstage.io/docs/features/techdocs/cli/) to test against a local docs folder. You will need to customize the preview app bundle for that to work as the addon is not included in the [standard bundle](https://github.com/backstage/techdocs-cli/blob/main/packages/embedded-techdocs-app/src/App.tsx). Review the TechDoc's documentation for further instructions.
+
+#### Option #2 Use a Remote Location
+
+Register a component via URL like any other Backstage component and view that component's TechDocs. 
 For example, to use the SampleDocs component in this repo:
 
 1. Generate a [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) for *public repos*.
@@ -93,3 +100,9 @@ For example, to use the SampleDocs component in this repo:
    3. Commit and push.
    4. Register the catalog-info.yaml for your branch instead (keep in mind any security changes required for your personal access token).
    5. Iterate changes to markdown and changes to the plugin.
+
+### Merging Pull Requests
+
+1. Change the minor or patch version in package.json depending on the type of change.
+2. Run `yarn install`
+3. Commit and start a PR of your fork's branch.
