@@ -100,9 +100,3 @@ For example, to use the SampleDocs component in this repo:
    3. Commit and push.
    4. Register the catalog-info.yaml for your branch instead (keep in mind any security changes required for your personal access token).
    5. Iterate changes to markdown and changes to the plugin.
-
-### Merging Pull Requests
-
-1. Change the minor or patch version in package.json depending on the type of change.
-2. Run `yarn install`
-3. Commit and start a PR of your fork's branch.
