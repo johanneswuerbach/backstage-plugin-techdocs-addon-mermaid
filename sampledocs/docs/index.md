@@ -224,6 +224,22 @@ graph LR
     C --> E("$$x(t)=c_1\begin{bmatrix}-\cos{t}+\sin{t}\\ 2\cos{t} \end{bmatrix}e^{2t}$$")
 ```
 
+### Architecture Beta
+
+```
+architecture-beta
+    group api(cloud)[API]
+
+    service db(database)[Database] in api
+    service disk1(disk)[Storage] in api
+    service disk2(disk)[Storage] in api
+    service server(server)[Server] in api
+
+    db:L -- R:server
+    disk1:T -- B:server
+    disk2:T -- B:db
+```
+
 ## Not yet supported
 
 ### ZenUml
