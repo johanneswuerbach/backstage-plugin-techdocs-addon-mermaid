@@ -1,6 +1,11 @@
+import mermaid from "mermaid";
 import { isMermaidCode } from "./hooks";
 
 describe("isMermaidCode", () => {
+  beforeAll(() => {
+    mermaid.initialize({});
+  })
+
   describe("returns true when", () => {
     it("mermaid code exists", () => {
       const mermaidCode = "sequenceDiagram foo foo2 foo-->foo2";
@@ -134,7 +139,7 @@ A-->B`;
     });
 
     it("improper directive", () => {
-      const mermaidCode = `%%{init: { 'logLevel': 'debug', 'theme': 'dark' } 
+      const mermaidCode = `%%{init: { 'logLevel': 'debug', 'theme': 'dark' }
 invalid LR
 A-->B`;
 

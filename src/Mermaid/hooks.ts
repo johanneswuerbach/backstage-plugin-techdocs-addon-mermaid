@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-// List of all renderers supported by mermaid, should be consistent with https://github.com/mermaid-js/mermaid/tree/develop/packages/mermaid/src/diagrams
-// Each of the diagram types are using DiagramDetector
-const mermaidStart =
-  /^(\s*)(architecture(-beta)?|block(-beta)?|C4Context|C4Container|C4Component|C4Dynamic|C4Deployment|classDiagram-v2|classDiagram|erDiagram|graph|flowchart|gantt|gitGraph|info|mindmap|packet|pie|quadrantChart|requirement(Diagram)?|sankey|sequenceDiagram|stateDiagram(-v2)?|timeline|journey|xychart(-beta)?)/gm;
+import mermaid from 'mermaid'
 
 export const isMermaidCode = (code: string): boolean => {
-  if (code.startsWith('%%{init')) {
-    const codeSplitByDirectiveStart = code.split('%%');
-
-    if (codeSplitByDirectiveStart.length > 2)
-      return code.split('%%')[2].match(mermaidStart) !== null;
+  try {
+    mermaid.detectType(code)
+    return true
+  } catch (_) {
+    return false
   }
-
-  return code.match(mermaidStart) !== null;
 };
