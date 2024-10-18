@@ -20,6 +20,7 @@ import React from 'react';
 
 import { Mermaid } from '../plugin';
 import { selectConfig } from './Mermaid';
+import { MermaidProps } from './props';
 
 describe('Mermaid', () => {
   it('renders without exploding', async () => {
@@ -78,7 +79,7 @@ describe('Mermaid', () => {
   describe('selectConfig', () => {
     const legacyConfig = { config: { fontFamily: 'legacy-config' } };
     const lightConfig = { lightConfig: { fontFamily: 'light-config' } };
-    const darkConfig = { darkConfig: { fontFamily: 'dark-config', theme: 'dark' } };
+    const darkConfig: MermaidProps = { darkConfig: { fontFamily: 'dark-config', theme: 'dark' } };
 
     it('legacy config is preferred for backwards-compatibility', () => {
       let config = selectConfig('light', { ...legacyConfig });

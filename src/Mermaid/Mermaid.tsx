@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { PaletteType, useTheme } from '@material-ui/core';
 
 import { useShadowRootElements } from '@backstage/plugin-techdocs-react';
@@ -44,7 +44,7 @@ export function selectConfig(backstagePalette: PaletteType, properties: MermaidP
 
 let diagramId = 0
 
-const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: string, backstagePalette: PaletteType, properties: MermaidProps) => {
+const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: string) => {
   el.style.display = 'none'
 
   const diagramElement = document.createElement('div')
@@ -53,12 +53,6 @@ const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: str
   el.parentNode?.insertBefore(diagramElement, el.nextSibling);
 
   const id = `mermaid-${diagramId++}`
-
-  const config = selectConfig(backstagePalette, properties);
-  if(config) {
-    mermaid.initialize(config);
-  }
-
   const { svg, bindFunctions } = await mermaid.render(id, diagramText);
   diagramElement.innerHTML = svg
   bindFunctions?.(diagramElement);
@@ -69,8 +63,24 @@ export const MermaidAddon = (properties: MermaidProps) => {
   const highlightDivs = useShadowRootElements<HTMLDivElement>(['.highlight']);
   const mermaidPreBlocks = useShadowRootElements<HTMLPreElement>(['.mermaid']);
   const theme = useTheme<BackstageTheme>();
+  
+
+  const [ initialized, setInitialized ] = useState(false);
 
   useEffect(() => {
+    if (initialized) {
+      return;
+    }
+    const config = selectConfig(theme.palette.type, properties);
+    mermaid.initialize(config);
+    setInitialized(true);
+  }, [initialized]);
+
+  useEffect(() => {
+    if (!initialized) {
+      return;
+    }
+
     highlightTables.forEach(highlightTable => {
       if (!highlightTable.classList.contains('language-text')) {
          return;
@@ -93,11 +103,15 @@ export const MermaidAddon = (properties: MermaidProps) => {
         return
       }
 
-      makeDiagram(highlightTable, diagramText, theme.palette.type, properties)
+      makeDiagram(highlightTable, diagramText)
     });
-  }, [highlightTables, properties, theme.palette.type]);
+  }, [initialized, highlightTables]);
 
   useEffect(() => {
+    if (!initialized) {
+      return;
+    }
+
     highlightDivs.forEach(highlightDiv => {
       if (!highlightDiv.classList.contains('language-text')) {
          return;
@@ -126,11 +140,15 @@ export const MermaidAddon = (properties: MermaidProps) => {
         return
       }
 
-      makeDiagram(highlightDiv, diagramText, theme.palette.type, properties)
+      makeDiagram(highlightDiv, diagramText)
     });
-  }, [highlightDivs, properties, theme.palette.type]);
+  }, [initialized, highlightDivs]);
 
   useEffect(() => {
+    if (!initialized) {
+      return;
+    }
+
     mermaidPreBlocks.forEach(mermaidPreBlock => {
       // Skip already processed
       if (mermaidPreBlock.style.display === 'none') {
@@ -144,9 +162,9 @@ export const MermaidAddon = (properties: MermaidProps) => {
 
       const diagramText = codeBlock.textContent || ''
 
-      makeDiagram(mermaidPreBlock, diagramText, theme.palette.type, properties)
+      makeDiagram(mermaidPreBlock, diagramText)
     });
-  }, [mermaidPreBlocks, properties, theme.palette.type]);
+  }, [initialized, mermaidPreBlocks]);
 
   return null;
 };

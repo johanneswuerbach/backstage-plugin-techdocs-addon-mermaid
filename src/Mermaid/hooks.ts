@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-const mermaidStart =
-  /^(\s*)(graph|flowchart|sequenceDiagram|classDiagram|stateDiagram|erDiagram|journey|gantt|pie|requirementDiagram|gitGraph|C4Context|C4Container|C4Component|C4Dynamic|C4Deployment|timeline|mindmap|quadrantChart|xychart-beta|block-beta)/gm;
+import mermaid from 'mermaid'
 
 export const isMermaidCode = (code: string): boolean => {
-  if (code.startsWith('%%{init')) {
-    const codeSplitByDirectiveStart = code.split('%%');
-
-    if (codeSplitByDirectiveStart.length > 2)
-      return code.split('%%')[2].match(mermaidStart) !== null;
+  try {
+    mermaid.detectType(code)
+    return true
+  } catch (_) {
+    return false
   }
-
-  return code.match(mermaidStart) !== null;
 };
