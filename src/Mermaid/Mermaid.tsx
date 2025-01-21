@@ -18,11 +18,10 @@ import { useEffect, useState } from 'react';
 import { PaletteType, useTheme } from '@material-ui/core';
 
 import { useShadowRootElements } from '@backstage/plugin-techdocs-react';
-import mermaid from 'mermaid'
+import mermaid, { MermaidConfig } from 'mermaid'
 import { isMermaidCode } from './hooks';
 import { MermaidProps } from './props';
 import { BackstageTheme } from '@backstage/theme';
-import { MermaidConfig } from 'mermaid';
 
 export function selectConfig(backstagePalette: PaletteType, properties: MermaidProps): MermaidConfig {
   // Theme set directly in the Mermaid configuration takes
@@ -63,7 +62,6 @@ export const MermaidAddon = (properties: MermaidProps) => {
   const highlightDivs = useShadowRootElements<HTMLDivElement>(['.highlight']);
   const mermaidPreBlocks = useShadowRootElements<HTMLPreElement>(['.mermaid']);
   const theme = useTheme<BackstageTheme>();
-  
 
   const [ initialized, setInitialized ] = useState(false);
 
@@ -72,6 +70,9 @@ export const MermaidAddon = (properties: MermaidProps) => {
       return;
     }
     const config = selectConfig(theme.palette.type, properties);
+    if ( properties.iconLoaders ) {
+      mermaid.registerIconPacks(properties.iconLoaders);
+    }
     mermaid.initialize(config);
     setInitialized(true);
   }, [initialized]);
