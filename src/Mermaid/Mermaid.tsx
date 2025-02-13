@@ -69,9 +69,12 @@ export const MermaidAddon = (properties: MermaidProps) => {
     if (initialized) {
       return;
     }
-    const config = selectConfig(theme.palette.type, properties);
+    const config: MermaidConfig = selectConfig(theme.palette.type, properties);
     if ( properties.iconLoaders ) {
       mermaid.registerIconPacks(properties.iconLoaders);
+    }
+    if (properties.layoutLoaders) {
+      mermaid.registerLayoutLoaders(properties.layoutLoaders);
     }
     mermaid.initialize(config);
     setInitialized(true);

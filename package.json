@@ -39,7 +39,7 @@
     "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "4.0.0-alpha.61",
-    "mermaid": "^11.3.0",
+    "mermaid": "^11.4.1",
     "react-use": "^17.2.4"
   },
   "peerDependencies": {
@@ -61,11 +61,11 @@
     "@testing-library/user-event": "^14.0.0",
     "@types/jest": "*",
     "@types/node": "*",
-    "@types/react": "^18.2.48",
+    "@types/react": "^18.3.12",
     "cross-fetch": "^3.1.5",
     "msw": "^1.0.0",
-    "react": "^18.0.2",
-    "react-dom": "^18.0.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "react-router-dom": "^6.3.0",
     "typescript": "~5.2.0"
   },
