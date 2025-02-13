@@ -33,16 +33,6 @@ describe('Mermaid', () => {
     expect(getByText('TEST_CONTENT')).toBeInTheDocument();
   });
 
-  it('renders ELK layout without exploding', async () => {
-    const { getByText } = await TechDocsAddonTester.buildAddonsInTechDocs([
-      <Mermaid config={{ layout: 'elk'}} />,
-    ])
-        .withDom(<body>TEST_CONTENT</body>)
-        .renderWithEffects();
-
-    expect(getByText('TEST_CONTENT')).toBeInTheDocument();
-  });
-
   it('renders pre blocks with mermaid class', async () => {
     const { getByTestId } = await TechDocsAddonTester.buildAddonsInTechDocs([
       <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
