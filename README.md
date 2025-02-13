@@ -68,6 +68,39 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 ```
 
+## Supporting Additional Layout Renderers
+
+By providing a mermaid layout renderer that conforms to the `LayoutLoaderDefinition`, such as the [ELK Renderer](https://www.npmjs.com/package/@mermaid-js/layout-elk),
+this plugin will include this provided render on page load.
+
+**Example Usage**
+
+In your Backstage application root folder run:
+```bash
+yarn add @mermaid-js/layout-elk
+```
+
+Then within both `App.tsx` and `EntityPage.tsx` add the following:
+```typescript
+import elkLayouts from '@mermaid-js/layout-elk';
+...
+<Mermaid layoutLoaders={elkLayouts} config={{layout: 'elk'}} />
+...
+```
+
+This will support both the legacy syntax and the modern syntax for defining which mermaid diagrams utilize the new layout renderer
+Legacy
+```bash
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+```
+Modern
+```bash
+---
+config:
+  layout: elk
+---
+```
+
 ## Contributors Guide
 
 This plugin can be developed in the context of an existing Backstage deployment or a [new local deployment](https://backstage.io/docs/getting-started/#1-create-your-backstage-app).
