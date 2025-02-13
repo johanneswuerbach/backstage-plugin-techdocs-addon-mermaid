@@ -22,7 +22,6 @@ import mermaid, { MermaidConfig } from 'mermaid'
 import { isMermaidCode } from './hooks';
 import { MermaidProps } from './props';
 import { BackstageTheme } from '@backstage/theme';
-import elkLayouts from '@mermaid-js/layout-elk';
 
 export function selectConfig(backstagePalette: PaletteType, properties: MermaidProps): MermaidConfig {
   // Theme set directly in the Mermaid configuration takes
@@ -58,17 +57,6 @@ const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: str
   bindFunctions?.(diagramElement);
 }
 
-function registerLayout(config: MermaidConfig) {
-  switch (config.layout) {
-    case 'elk':
-      mermaid.registerLayoutLoaders(elkLayouts);
-      break;
-    // Future support for more layout engines
-    default:
-      break;
-  }
-}
-
 export const MermaidAddon = (properties: MermaidProps) => {
   const highlightTables = useShadowRootElements<HTMLDivElement>(['.highlighttable']);
   const highlightDivs = useShadowRootElements<HTMLDivElement>(['.highlight']);
@@ -85,8 +73,8 @@ export const MermaidAddon = (properties: MermaidProps) => {
     if ( properties.iconLoaders ) {
       mermaid.registerIconPacks(properties.iconLoaders);
     }
-    if (config?.layout) {
-      registerLayout(config);
+    if (properties.layoutLoaders) {
+      mermaid.registerLayoutLoaders(properties.layoutLoaders);
     }
     mermaid.initialize(config);
     setInitialized(true);

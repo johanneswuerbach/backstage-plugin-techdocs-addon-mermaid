@@ -39,7 +39,6 @@
     "@material-ui/core": "^4.12.2",
     "@material-ui/icons": "^4.11.3",
     "@material-ui/lab": "4.0.0-alpha.61",
-    "@mermaid-js/layout-elk": "^0.1.7",
     "mermaid": "^11.4.1",
     "react-use": "^17.2.4"
   },
