@@ -15,9 +15,11 @@
  */
 
 import mermaid from 'mermaid'
+import elkLayouts from '@mermaid-js/layout-elk';
 
 export const isMermaidCode = (code: string): boolean => {
   try {
+    mermaid.registerLayoutLoaders(elkLayouts);
     mermaid.detectType(code)
     return true
   } catch (_) {
