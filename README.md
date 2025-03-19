@@ -21,20 +21,41 @@ Backstage v1.2+
    yarn --cwd packages/app add backstage-plugin-techdocs-addon-mermaid
    ```
 
-4. Enable the addon within techdocs viewer's within `App.tsx` and `EntityPage.tsx`
+4. Enabling the Mermaid Addon:
+
+   - **Legacy Frontend System**: Enable the addon within techdocs viewer's within `App.tsx` and `EntityPage.tsx`
 
    ```typescript jsx
    // packages/app/src/App.tsx
    // packages/app/src/components/catalog/EntityPage.tsx
-   import { Mermaid } from 'backstage-plugin-techdocs-addon-mermaid';
- 
+   import { Mermaid } from "backstage-plugin-techdocs-addon-mermaid";
+
    // ...
    {techDocsPage}
    <TechDocsAddons>
      {/*...*/}
-     <Mermaid config={{ theme: 'forest', themeVariables: { lineColor: '#000000' } }} />
+     <Mermaid config={{ theme: "forest", themeVariables: { lineColor: "#000000" } }} />
    </TechDocsAddons>
-    ```
+   ```
+
+   - **New Frontend System**: Enable the addon module within `App.tsx`:
+
+   ```typescript jsx
+   // packages/app/src/App.tsx
+   import techDocsPlugin from '@backstage/plugin-techdocs/alpha';
+   import { techDocsMermaidAddonModule } from "backstage-plugin-techdocs-addon-mermaid";
+
+   // ...
+
+   const app = createApp({
+     features: [
+       // ...
+       techDocsPlugin,
+       techDocsMermaidAddonModule,
+       // ...other techdocs addon modules
+     ],
+   });
+   ```
 
 ## Use Mermaid in your TechDocs
 
