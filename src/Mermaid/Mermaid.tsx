@@ -22,6 +22,7 @@ import mermaid, { MermaidConfig } from 'mermaid'
 import { isMermaidCode } from './hooks';
 import { MermaidProps } from './props';
 import { BackstageTheme } from '@backstage/theme';
+import { ZoomHandler } from './zoomHandler';
 
 export function selectConfig(backstagePalette: PaletteType, properties: MermaidProps): MermaidConfig {
   // Theme set directly in the Mermaid configuration takes
@@ -43,7 +44,7 @@ export function selectConfig(backstagePalette: PaletteType, properties: MermaidP
 
 let diagramId = 0
 
-const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: string) => {
+const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: string, properties: MermaidProps,) => {
   el.style.display = 'none'
 
   const diagramElement = document.createElement('div')
@@ -55,6 +56,23 @@ const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: str
   const { svg, bindFunctions } = await mermaid.render(id, diagramText);
   diagramElement.innerHTML = svg
   bindFunctions?.(diagramElement);
+  
+  // If zoom is enabled, wrap the SVG in a <g> and hook up D3.zoom()
+  if (properties.enableZoom) {
+    const svgEl = diagramElement.querySelector('svg');
+    if (svgEl) {
+      // 1) Move all existing nodes into one <g>
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      while (svgEl.firstChild) {
+        g.appendChild(svgEl.firstChild);
+      }
+      svgEl.appendChild(g);
+
+      // Initialize zoom handler
+      const zoomHandler = new ZoomHandler(svgEl as SVGSVGElement, g, properties.zoomOptions);
+      zoomHandler.initialize();
+    }
+  }
 }
 
 export const MermaidAddon = (properties: MermaidProps) => {
@@ -78,7 +96,7 @@ export const MermaidAddon = (properties: MermaidProps) => {
     }
     mermaid.initialize(config);
     setInitialized(true);
-  }, [initialized]);
+  }, [initialized, properties, theme.palette.type]);
 
   useEffect(() => {
     if (!initialized) {
@@ -107,9 +125,9 @@ export const MermaidAddon = (properties: MermaidProps) => {
         return
       }
 
-      makeDiagram(highlightTable, diagramText)
+      makeDiagram(highlightTable, diagramText, properties)
     });
-  }, [initialized, highlightTables]);
+  }, [initialized, highlightTables, properties]);
 
   useEffect(() => {
     if (!initialized) {
@@ -144,9 +162,9 @@ export const MermaidAddon = (properties: MermaidProps) => {
         return
       }
 
-      makeDiagram(highlightDiv, diagramText)
+      makeDiagram(highlightDiv, diagramText, properties)
     });
-  }, [initialized, highlightDivs]);
+  }, [initialized, highlightDivs, properties]);
 
   useEffect(() => {
     if (!initialized) {
@@ -166,9 +184,9 @@ export const MermaidAddon = (properties: MermaidProps) => {
 
       const diagramText = codeBlock.textContent || ''
 
-      makeDiagram(mermaidPreBlock, diagramText)
+      makeDiagram(mermaidPreBlock, diagramText, properties)
     });
-  }, [initialized, mermaidPreBlocks]);
+  }, [initialized, mermaidPreBlocks, properties]);
 
   return null;
 };
