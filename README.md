@@ -74,6 +74,47 @@ graph TD;
 
 ~~~
 
+## Zoom and Pan Functionality
+
+The plugin supports interactive zoom and pan functionality for Mermaid diagrams. This allows users to:
+- Zoom in/out using Ctrl/Cmd + mouse wheel
+- Pan the diagram using Ctrl/Cmd + mouse drag
+
+### Zoom Configuration Options
+
+The zoom functionality can be configured using the following options:
+
+```typescript
+interface ZoomOptions {
+  /** 
+   * Defines the minimum and maximum zoom scale limits.
+   * Example: [0.1, 10] allows zooming out to 10% and in to 1000%
+   * Default: [0.1, 10]
+   */
+  scaleExtent?: [number, number];
+
+  /** 
+   * Defines the boundaries for panning the diagram.
+   * Format: [[xmin, ymin], [xmax, ymax]]
+   * Example: [[-1000, -1000], [1000, 1000]] limits panning to a 2000x2000 area
+   * Default: No limits
+   */
+  translateExtent?: [[number, number], [number, number]];
+}
+```
+
+To enable zoom functionality, add the `enableZoom` prop and optionally configure the zoom behavior:
+
+```typescript
+<Mermaid 
+  enableZoom
+  zoomOptions={{
+    scaleExtent: [0.1, 10], // Optional: Set min/max zoom scale
+    translateExtent: [[-1000, -1000], [1000, 1000]] // Optional: Set pan boundaries
+  }}
+/>
+```
+
 ## Auto-Detection vs. Manual Detection
 
 By default, this plugin will autodetect diagrams based on the starting token of the code block. In some cases, however, this auto-detection is not sufficient, for example, because of an unrecognized
