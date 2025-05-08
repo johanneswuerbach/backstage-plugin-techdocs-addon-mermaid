@@ -17,11 +17,6 @@ export interface ZoomOptions {
      * Example: [[-1000, -1000], [1000, 1000]] limits panning to a 2000x2000 area
      */
     translateExtent?: [[number, number], [number, number]];
-    /** 
-     * Controls whether double-clicking should trigger zoom-to-fit behavior.
-     * Defaults to true if not specified.
-     */
-    enableDoubleClickZoom?: boolean;
 }
 
 /**
