@@ -16,8 +16,6 @@
 
 import { TechDocsAddonTester } from '@backstage/plugin-techdocs-addons-test-utils';
 
-import React from 'react';
-
 import { Mermaid } from '../plugin';
 import { selectConfig } from './Mermaid';
 import { MermaidProps } from './props';
