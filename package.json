@@ -7,7 +7,8 @@
   "publishConfig": {
     "access": "public",
     "main": "dist/index.esm.js",
-    "types": "dist/index.d.ts"
+    "types": "dist/index.d.ts",
+    "registry": "https://registry.npmjs.org"
   },
   "backstage": {
     "role": "frontend-plugin",
