@@ -19,7 +19,5 @@ jobs:
     - name: Setup .yarnrc.yml file to allow publication to https://registry.npmjs.org with a 'yarn npm publish'
       shell: bash
       run: |
-        echo "npmAuthToken: ${NODE_AUTH_TOKEN-}" >> ~/.yarnrc.yml
+        echo "npmAuthToken: ${{ secrets.NPM_TOKEN }}" >> ~/.yarnrc.yml
     - run: yarn npm publish
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
