@@ -61,6 +61,8 @@ export class ZoomHandler {
     const zb = this.createZoomBehavior();
     this.attachZoomBehavior(zb);
     this.attachEventListeners(zb);
+    // Disable text selection permanently
+    this.svgEl.style.userSelect = 'none';
   }
 
   /**
@@ -176,8 +178,14 @@ export class ZoomHandler {
 
     event.preventDefault();
 
-    const dx = event.clientX - this.state.startX;
-    const dy = event.clientY - this.state.startY;
+    // Convert current mouse position to SVG coordinates
+    const [currentX, currentY] = pointer(event, this.svgEl);
+    // Convert the starting mouse position to SVG coordinates
+    const [startX, startY] = pointer({ clientX: this.state.startX, clientY: this.state.startY }, this.svgEl);
+
+    // Calculate the movement delta in SVG coordinate space
+    const dx = currentX - startX;
+    const dy = currentY - startY;
 
     const transform = select(this.g).attr('transform');
     let currentScale = 1;
