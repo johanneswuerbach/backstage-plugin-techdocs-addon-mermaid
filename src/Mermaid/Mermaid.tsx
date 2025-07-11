@@ -23,19 +23,20 @@ import { isMermaidCode } from './hooks';
 import { MermaidProps } from './props';
 import { BackstageTheme } from '@backstage/theme';
 import { ZoomHandler } from './zoomHandler';
+import { deepMerge } from './utils';
 
 export function selectConfig(backstagePalette: PaletteType, properties: MermaidProps): MermaidConfig {
-  // Theme set directly in the Mermaid configuration takes
-  // precedence for backwards-compatibility
-  if(properties.config) {
-    return properties.config;
+  // Determine the default config based on palette
+  const defaultConfig = backstagePalette === 'light'
+    ? (properties.lightConfig || {})
+    : Object.assign({ theme: 'dark' }, properties.darkConfig);
+
+  // If a config is provided, deep merge it with the default config (user values take precedence)
+  if (properties.config) {
+    return deepMerge(defaultConfig, properties.config);
   }
 
-  if(backstagePalette === 'light') {
-    return properties.lightConfig || {};
-  }
-
-  return Object.assign({ theme: 'dark' }, properties.darkConfig);
+  return defaultConfig;
 }
 
 /**
