@@ -20,3 +20,5 @@ export const techDocsMermaidAddonModule = createFrontendModule({
   pluginId: "techdocs",
   extensions: [techDocsMermaidAddon],
 });
+
+export { techDocsMermaidAddonModule as default };
