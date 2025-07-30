@@ -3,6 +3,16 @@
   "version": "0.22.0",
   "main": "src/index.ts",
   "types": "src/index.ts",
+  "typesVersions": {
+    "*": {
+      "alpha": [
+        "src/alpha.ts"
+      ],
+      "package.json": [
+        "package.json"
+      ]
+    }
+  },
   "license": "MIT",
   "publishConfig": {
     "access": "public",
@@ -11,11 +21,9 @@
     "registry": "https://registry.npmjs.org"
   },
   "backstage": {
-    "role": "frontend-plugin",
-    "pluginId": "techdocs-addon-mermaid",
-    "pluginPackages": [
-      "backstage-plugin-techdocs-addon-mermaid"
-    ]
+    "role": "frontend-plugin-module",
+    "pluginId": "techdocs",
+    "pluginPackage": "@backstage/plugin-techdocs"
   },
   "keywords": [
     "backstage",
@@ -23,6 +31,11 @@
     "mermaid"
   ],
   "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./alpha": "./src/alpha.ts",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "start": "backstage-cli package start",
     "build": "backstage-cli package build",
