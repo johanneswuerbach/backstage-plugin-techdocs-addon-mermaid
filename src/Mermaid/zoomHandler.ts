@@ -171,11 +171,6 @@ export class ZoomHandler {
    * @param zb - The D3 zoom behavior to use for transformations
    */
   private handleMouseMove(event: MouseEvent, zb: ZoomBehavior<HTMLElement, unknown>): void {
-    if (!event.metaKey && !event.ctrlKey) {
-      this.handleMouseUp();
-      return;
-    }
-
     event.preventDefault();
 
     // Convert current mouse position to SVG coordinates
