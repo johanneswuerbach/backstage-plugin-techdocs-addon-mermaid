@@ -213,6 +213,6 @@ export class ZoomHandler {
    */
   private handleMouseUp(): void {
     this.state.isPanning = false;
-    this.container.style.cursor = 'default';
+    this.container.style.cursor = 'auto';
   }
 } 

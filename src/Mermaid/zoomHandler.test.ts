@@ -147,7 +147,7 @@ describe('ZoomHandler', () => {
       const mouseUpEvent = new MouseEvent('mouseup');
       document.dispatchEvent(mouseUpEvent);
 
-      expect(mockDiagContainer.style.cursor).toBe('default');
+      expect(mockDiagContainer.style.cursor).toBe('auto');
     });
   });
 });
