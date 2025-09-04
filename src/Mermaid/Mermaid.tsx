@@ -50,6 +50,8 @@ const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: str
 
   const diagramElement = document.createElement('div')
   diagramElement.className = "mermaid"
+  // Clip the element when outside parent when panning
+  diagramElement.style.overflow = 'hidden';
 
   el.parentNode?.insertBefore(diagramElement, el.nextSibling);
 
@@ -58,21 +60,14 @@ const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: str
   diagramElement.innerHTML = svg
   bindFunctions?.(diagramElement);
   
-  // If zoom is enabled, wrap the SVG in a <g> and hook up D3.zoom()
   if (properties.enableZoom) {
     const svgEl = diagramElement.querySelector('svg');
-    if (svgEl) {
-      // 1) Move all existing nodes into one <g>
-      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      while (svgEl.firstChild) {
-        g.appendChild(svgEl.firstChild);
-      }
-      svgEl.appendChild(g);
-
-      // Initialize zoom handler
-      const zoomHandler = new ZoomHandler(svgEl as SVGSVGElement, g, properties.zoomOptions);
-      zoomHandler.initialize();
-    }
+    const zoomHandler = new ZoomHandler(
+     diagramElement,
+     svgEl as SVGSVGElement,
+     properties.zoomOptions,
+    );
+    zoomHandler.initialize();
   }
 }
 

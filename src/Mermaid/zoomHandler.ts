@@ -44,13 +44,13 @@ export class ZoomHandler {
 
   /**
    * Creates a new ZoomHandler instance
-   * @param svgEl - The SVG element to attach zoom behavior to
-   * @param g - The group element that will be transformed
+   * @param container - The SVG element to attach zoom behavior to
+   * @param diagram - The group element that will be transformed
    * @param options - Optional configuration for zoom behavior
    */
   constructor(
-    private svgEl: SVGSVGElement,
-    private g: SVGGElement,
+    private container: HTMLElement,
+    private diagram: SVGGElement,
     private options: ZoomOptions = {}
   ) {}
 
@@ -62,18 +62,18 @@ export class ZoomHandler {
     this.attachZoomBehavior(zb);
     this.attachEventListeners(zb);
     // Disable text selection permanently
-    this.svgEl.style.userSelect = 'none';
+    this.container.style.userSelect = 'none';
   }
 
   /**
    * Creates a D3 zoom behavior with configured scale extent
    * @returns Configured D3 zoom behavior
    */
-  private createZoomBehavior(): ZoomBehavior<SVGSVGElement, unknown> {
-    return zoom<SVGSVGElement, unknown>()
+  private createZoomBehavior(): ZoomBehavior<HTMLElement, unknown> {
+    return zoom<HTMLElement, unknown>()
       .scaleExtent(this.options.scaleExtent || [0.1, 10])
-      .on('zoom', (event) => {
-        select(this.g).attr('transform', event.transform.toString());
+      .on('zoom', event => {
+        select(this.diagram).attr('transform', event.transform.toString());
       });
   }
 
@@ -81,16 +81,16 @@ export class ZoomHandler {
    * Attaches the zoom behavior to the SVG element
    * @param zb - The D3 zoom behavior to attach
    */
-  private attachZoomBehavior(zb: ZoomBehavior<SVGSVGElement, unknown>): void {
-    select(this.svgEl).call(zb);
-    select(this.svgEl).on('.zoom', null);
+  private attachZoomBehavior(zb: ZoomBehavior<HTMLElement, unknown>): void {
+    select(this.container).call(zb);
+    select(this.container).on('.zoom', null);
   }
 
   /**
    * Sets up all necessary event listeners for zoom and pan interactions
    * @param zb - The D3 zoom behavior to use for transformations
    */
-  private attachEventListeners(zb: ZoomBehavior<SVGSVGElement, unknown>): void {
+  private attachEventListeners(zb: ZoomBehavior<HTMLElement, unknown>): void {
     this.attachWheelListener(zb);
     this.attachMouseListeners(zb);
   }
@@ -100,16 +100,15 @@ export class ZoomHandler {
    * Requires Ctrl/Cmd key to be pressed while scrolling
    * @param zb - The D3 zoom behavior to use for scaling
    */
-  private attachWheelListener(zb: ZoomBehavior<SVGSVGElement, unknown>): void {
-    this.svgEl.addEventListener('wheel', (event: WheelEvent) => {
+  private attachWheelListener(zb: ZoomBehavior<HTMLElement, unknown>): void {
+    this.container.addEventListener('wheel', (event: WheelEvent) => {
       if (!(event.metaKey || event.ctrlKey)) {
         return;
       }
       event.preventDefault();
       const factor = event.deltaY > 0 ? 0.9 : 1.1;
-      const [px, py] = pointer(event, this.svgEl);
-      // @ts-ignore: scaleBy is available on the zoom behavior
-      (select(this.svgEl) as any).call(zb.scaleBy, factor, [px, py]);
+      const [px, py] = pointer(event, this.container);
+      select(this.container).call(zb.scaleBy, factor, [px, py]);
     }, { passive: false });
   }
 
@@ -117,8 +116,8 @@ export class ZoomHandler {
    * Attaches mouse event listeners for panning functionality
    * @param zb - The D3 zoom behavior to use for transformations
    */
-  private attachMouseListeners(zb: ZoomBehavior<SVGSVGElement, unknown>): void {
-    this.svgEl.addEventListener('mousedown', (event) => {
+  private attachMouseListeners(zb: ZoomBehavior<HTMLElement, unknown>): void {
+    this.container.addEventListener('mousedown', (event) => {
       if (event.metaKey || event.ctrlKey) {
         this.handleMouseDown(event);
       }
@@ -152,7 +151,7 @@ export class ZoomHandler {
     this.state.startX = event.clientX;
     this.state.startY = event.clientY;
 
-    const transform = select(this.g).attr('transform');
+    const transform = select(this.diagram).attr('transform');
     if (transform) {
       const translateMatch = transform.match(/translate\(([^)]+)\)/);
       if (translateMatch) {
@@ -162,7 +161,7 @@ export class ZoomHandler {
       }
     }
 
-    this.svgEl.style.cursor = 'grabbing';
+    this.container.style.cursor = 'grabbing';
   }
 
   /**
@@ -170,7 +169,7 @@ export class ZoomHandler {
    * @param event - The mouse move event
    * @param zb - The D3 zoom behavior to use for transformations
    */
-  private handleMouseMove(event: MouseEvent, zb: ZoomBehavior<SVGSVGElement, unknown>): void {
+  private handleMouseMove(event: MouseEvent, zb: ZoomBehavior<HTMLElement, unknown>): void {
     if (!event.metaKey && !event.ctrlKey) {
       this.handleMouseUp();
       return;
@@ -179,15 +178,18 @@ export class ZoomHandler {
     event.preventDefault();
 
     // Convert current mouse position to SVG coordinates
-    const [currentX, currentY] = pointer(event, this.svgEl);
+    const [currentX, currentY] = pointer(event, this.container);
     // Convert the starting mouse position to SVG coordinates
-    const [startX, startY] = pointer({ clientX: this.state.startX, clientY: this.state.startY }, this.svgEl);
+    const [startX, startY] = pointer(
+      { clientX: this.state.startX, clientY: this.state.startY },
+      this.container,
+    );
 
     // Calculate the movement delta in SVG coordinate space
     const dx = currentX - startX;
     const dy = currentY - startY;
 
-    const transform = select(this.g).attr('transform');
+    const transform = select(this.diagram).attr('transform');
     let currentScale = 1;
 
     if (transform) {
@@ -203,7 +205,7 @@ export class ZoomHandler {
     const newTransform = zoomIdentity
       .translate(newTranslateX, newTranslateY)
       .scale(currentScale);
-    select(this.svgEl).call(zb.transform, newTransform);
+    select(this.container).call(zb.transform, newTransform);
   }
 
   /**
@@ -211,6 +213,6 @@ export class ZoomHandler {
    */
   private handleMouseUp(): void {
     this.state.isPanning = false;
-    this.svgEl.style.cursor = 'default';
+    this.container.style.cursor = 'default';
   }
 } 
