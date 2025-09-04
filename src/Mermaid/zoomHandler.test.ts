@@ -23,8 +23,8 @@ jest.mock('d3-zoom', () => ({
 }));
 
 describe('ZoomHandler', () => {
-  let mockSvgEl: SVGSVGElement;
-  let mockG: SVGGElement;
+  let mockDiagContainer: HTMLElement;
+  let mockDiagram: SVGSVGElement;
   let zoomHandler: ZoomHandler;
   let mockSelect: jest.Mock;
   let mockZoom: jest.Mock;
@@ -34,8 +34,8 @@ describe('ZoomHandler', () => {
     jest.clearAllMocks();
 
     // Create mock elements
-    mockSvgEl = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    mockG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    mockDiagContainer = document.createElement('div');
+    mockDiagram = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
     // Setup mock select
     mockSelect = select as jest.Mock;
@@ -54,7 +54,7 @@ describe('ZoomHandler', () => {
     mockZoom = zoom as jest.Mock;
 
     // Create ZoomHandler instance
-    zoomHandler = new ZoomHandler(mockSvgEl, mockG);
+    zoomHandler = new ZoomHandler(mockDiagContainer, mockDiagram);
   });
 
   describe('initialize', () => {
@@ -62,7 +62,7 @@ describe('ZoomHandler', () => {
       zoomHandler.initialize();
 
       expect(mockZoom).toHaveBeenCalled();
-      expect(mockSelect).toHaveBeenCalledWith(mockSvgEl);
+      expect(mockSelect).toHaveBeenCalledWith(mockDiagContainer);
     });
   });
 
@@ -75,9 +75,9 @@ describe('ZoomHandler', () => {
         deltaY: 100,
       });
 
-      mockSvgEl.dispatchEvent(wheelEvent);
+      mockDiagContainer.dispatchEvent(wheelEvent);
 
-      expect(mockSelect).toHaveBeenCalledWith(mockSvgEl);
+      expect(mockSelect).toHaveBeenCalledWith(mockDiagContainer);
     });
 
     it('should not handle wheel zoom without ctrl/cmd key', () => {
@@ -88,7 +88,7 @@ describe('ZoomHandler', () => {
       });
 
       jest.clearAllMocks();
-      mockSvgEl.dispatchEvent(wheelEvent);
+      mockDiagContainer.dispatchEvent(wheelEvent);
 
       // The select mock should not be called with scaleBy
       expect(mockSelect).not.toHaveBeenCalled();
@@ -105,9 +105,9 @@ describe('ZoomHandler', () => {
         clientY: 100,
       });
 
-      mockSvgEl.dispatchEvent(mouseDownEvent);
+      mockDiagContainer.dispatchEvent(mouseDownEvent);
 
-      expect(mockSvgEl.style.cursor).toBe('grabbing');
+      expect(mockDiagContainer.style.cursor).toBe('grabbing');
     });
 
     it('should handle mouse move during panning', () => {
@@ -119,7 +119,7 @@ describe('ZoomHandler', () => {
         clientX: 100,
         clientY: 100,
       });
-      mockSvgEl.dispatchEvent(mouseDownEvent);
+      mockDiagContainer.dispatchEvent(mouseDownEvent);
 
       // Move mouse
       const mouseMoveEvent = new MouseEvent('mousemove', {
@@ -129,7 +129,7 @@ describe('ZoomHandler', () => {
       });
       document.dispatchEvent(mouseMoveEvent);
 
-      expect(mockSelect).toHaveBeenCalledWith(mockSvgEl);
+      expect(mockSelect).toHaveBeenCalledWith(mockDiagContainer);
     });
 
     it('should handle mouse up to stop panning', () => {
@@ -141,13 +141,13 @@ describe('ZoomHandler', () => {
         clientX: 100,
         clientY: 100,
       });
-      mockSvgEl.dispatchEvent(mouseDownEvent);
+      mockDiagContainer.dispatchEvent(mouseDownEvent);
 
       // Stop panning
       const mouseUpEvent = new MouseEvent('mouseup');
       document.dispatchEvent(mouseUpEvent);
 
-      expect(mockSvgEl.style.cursor).toBe('default');
+      expect(mockDiagContainer.style.cursor).toBe('default');
     });
   });
-}); 
+});
