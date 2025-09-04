@@ -118,7 +118,8 @@ export class ZoomHandler {
    */
   private attachMouseListeners(zb: ZoomBehavior<HTMLElement, unknown>): void {
     this.container.addEventListener('mousedown', (event) => {
-      if (event.metaKey || event.ctrlKey) {
+      // Allow panning by holding meta, ctrl or the middle mouse button
+      if (event.metaKey || event.ctrlKey || event.button == 1) {
         this.handleMouseDown(event);
       }
     });
