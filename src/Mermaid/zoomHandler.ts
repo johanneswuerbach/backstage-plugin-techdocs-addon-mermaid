@@ -61,8 +61,6 @@ export class ZoomHandler {
     const zb = this.createZoomBehavior();
     this.attachZoomBehavior(zb);
     this.attachEventListeners(zb);
-    // Disable text selection permanently
-    this.container.style.userSelect = 'none';
   }
 
   /**
@@ -148,6 +146,8 @@ export class ZoomHandler {
    * @param event - The mouse down event that triggered the pan
    */
   private handleMouseDown(event: MouseEvent): void {
+    event.preventDefault()
+
     this.state.isPanning = true;
     this.state.startX = event.clientX;
     this.state.startY = event.clientY;
@@ -209,6 +209,6 @@ export class ZoomHandler {
    */
   private handleMouseUp(): void {
     this.state.isPanning = false;
-    this.container.style.cursor = 'default';
+    this.container.style.cursor = 'auto';
   }
 } 
