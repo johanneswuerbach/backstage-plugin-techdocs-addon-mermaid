@@ -1,5 +1,13 @@
 import {LayoutLoaderDefinition, MermaidConfig} from 'mermaid';
-import { IconLoader } from 'mermaid/dist/rendering-util/icons';
+import type { IconifyJSON } from '@iconify/types';
+
+/**
+ * Icon loader for registering icon packs with Mermaid.
+ * Can be either synchronous (with icons) or asynchronous (with loader function).
+ */
+export type IconLoader = 
+  | { name: string; loader: () => Promise<IconifyJSON> }
+  | { name: string; icons: IconifyJSON };
 
 /**
  * Configuration options for controlling D3 zoom and pan behavior in Mermaid diagrams.

@@ -15,6 +15,7 @@
  */
 
 import { TechDocsAddonTester } from '@backstage/plugin-techdocs-addons-test-utils';
+import { screen } from 'shadow-dom-testing-library';
 
 import { Mermaid } from '../plugin';
 import { selectConfig } from './Mermaid';
@@ -22,17 +23,17 @@ import { MermaidProps } from './props';
 
 describe('Mermaid', () => {
   it('renders without exploding', async () => {
-    const { getByText } = await TechDocsAddonTester.buildAddonsInTechDocs([
+    await TechDocsAddonTester.buildAddonsInTechDocs([
       <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
     ])
       .withDom(<body>TEST_CONTENT</body>)
       .renderWithEffects();
 
-    expect(getByText('TEST_CONTENT')).toBeInTheDocument();
+    expect(screen.getByShadowText('TEST_CONTENT')).toBeInTheDocument();
   });
 
   it('renders pre blocks with mermaid class', async () => {
-    const { getByTestId } = await TechDocsAddonTester.buildAddonsInTechDocs([
+    await TechDocsAddonTester.buildAddonsInTechDocs([
       <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
     ])
       .withDom(<body>
@@ -42,11 +43,11 @@ describe('Mermaid', () => {
       </body>)
       .renderWithEffects();
 
-    expect(getByTestId('mermaid-test')).toHaveStyle('display: none')
+    expect(screen.getByShadowTestId('mermaid-test')).toHaveStyle('display: none')
   });
 
   it('renders highlight tables', async () => {
-    const { getByTestId } = await TechDocsAddonTester.buildAddonsInTechDocs([
+    await TechDocsAddonTester.buildAddonsInTechDocs([
       <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
     ])
       .withDom(<body>
@@ -56,11 +57,11 @@ describe('Mermaid', () => {
       </body>)
       .renderWithEffects();
 
-    expect(getByTestId('mermaid-test')).toHaveStyle('display: none')
+    expect(screen.getByShadowTestId('mermaid-test')).toHaveStyle('display: none')
   });
 
   it('renders div highlights', async () => {
-    const { getByTestId } = await TechDocsAddonTester.buildAddonsInTechDocs([
+    await TechDocsAddonTester.buildAddonsInTechDocs([
       <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
     ])
       .withDom(<body>
@@ -71,7 +72,7 @@ describe('Mermaid', () => {
       </body>)
       .renderWithEffects();
 
-    expect(getByTestId('mermaid-test')).toHaveStyle('display: none')
+    expect(screen.getByShadowTestId('mermaid-test')).toHaveStyle('display: none')
   });
 
   describe('selectConfig', () => {
