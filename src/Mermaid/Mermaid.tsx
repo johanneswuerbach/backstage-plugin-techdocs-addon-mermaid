@@ -56,18 +56,24 @@ const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: str
   el.parentNode?.insertBefore(diagramElement, el.nextSibling);
 
   const id = `mermaid-${diagramId++}`
-  const { svg, bindFunctions } = await mermaid.render(id, diagramText);
-  diagramElement.innerHTML = svg
-  bindFunctions?.(diagramElement);
-  
-  if (properties.enableZoom) {
-    const svgEl = diagramElement.querySelector('svg');
-    const zoomHandler = new ZoomHandler(
-     diagramElement,
-     svgEl as SVGSVGElement,
-     properties.zoomOptions,
-    );
-    zoomHandler.initialize();
+  try {
+    const { svg, bindFunctions } = await mermaid.render(id, diagramText);
+    diagramElement.innerHTML = svg
+    bindFunctions?.(diagramElement);
+
+    if (properties.enableZoom) {
+      const svgEl = diagramElement.querySelector('svg');
+      const zoomHandler = new ZoomHandler(
+       diagramElement,
+       svgEl as SVGSVGElement,
+       properties.zoomOptions,
+      );
+      zoomHandler.initialize();
+    }
+  } catch (e) {
+    el.style.display = ''
+    diagramElement.remove()
+    console.error('Failed to render mermaid diagram', e)
   }
 }
 
@@ -90,7 +96,7 @@ export const MermaidAddon = (properties: MermaidProps) => {
     if (properties.layoutLoaders) {
       mermaid.registerLayoutLoaders(properties.layoutLoaders);
     }
-    mermaid.initialize(config);
+    mermaid.initialize({ suppressErrorRendering: true, ...config });
     setInitialized(true);
   }, [initialized, properties, theme.palette.type]);
 
