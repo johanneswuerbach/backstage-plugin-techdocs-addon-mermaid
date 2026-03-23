@@ -86,14 +86,14 @@ The zoom functionality can be configured using the following options:
 
 ```typescript
 interface ZoomOptions {
-  /** 
+  /**
    * Defines the minimum and maximum zoom scale limits.
    * Example: [0.1, 10] allows zooming out to 10% and in to 1000%
    * Default: [0.1, 10]
    */
   scaleExtent?: [number, number];
 
-  /** 
+  /**
    * Defines the boundaries for panning the diagram.
    * Format: [[xmin, ymin], [xmax, ymax]]
    * Example: [[-1000, -1000], [1000, 1000]] limits panning to a 2000x2000 area
@@ -103,10 +103,12 @@ interface ZoomOptions {
 }
 ```
 
+### Legacy Frontend System
+
 To enable zoom functionality, add the `enableZoom` prop and optionally configure the zoom behavior:
 
 ```typescript
-<Mermaid 
+<Mermaid
   enableZoom
   zoomOptions={{
     scaleExtent: [0.1, 10], // Optional: Set min/max zoom scale
@@ -114,6 +116,28 @@ To enable zoom functionality, add the `enableZoom` prop and optionally configure
   }}
 />
 ```
+
+### New Frontend System
+
+When using the new frontend system, zoom and pan are configured via `app-config.yaml`
+under the `techdocs.addons.mermaid` key:
+
+```yaml
+# app-config.yaml
+techdocs:
+  addons:
+    mermaid:
+      enableZoom: true
+      zoomOptions:
+        scaleExtent: [0.1, 10]           # Optional: min/max zoom scale
+        translateExtent:                   # Optional: pan boundaries
+          - [-1000, -1000]
+          - [1000, 1000]
+```
+
+No code changes are needed beyond the standard module registration shown in
+the [Getting Started](#getting-started) section — the addon reads the
+configuration automatically at runtime.
 
 ## Auto-Detection vs. Manual Detection
 
