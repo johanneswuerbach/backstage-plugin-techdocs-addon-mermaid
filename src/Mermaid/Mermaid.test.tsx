@@ -16,6 +16,7 @@
 
 import { TechDocsAddonTester } from '@backstage/plugin-techdocs-addons-test-utils';
 import { screen } from 'shadow-dom-testing-library';
+import mermaid from 'mermaid';
 
 import { Mermaid } from '../plugin';
 import { selectConfig } from './Mermaid';
@@ -73,6 +74,33 @@ describe('Mermaid', () => {
       .renderWithEffects();
 
     expect(screen.getByShadowTestId('mermaid-test')).toHaveStyle('display: none')
+  });
+
+  describe('error handling', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    it('restores original element and logs error when render fails', async () => {
+      const error = new Error('Parse error');
+      jest.spyOn(mermaid, 'render').mockRejectedValue(error);
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      await TechDocsAddonTester.buildAddonsInTechDocs([
+        <Mermaid />,
+      ])
+        .withDom(<body>
+          <pre className="mermaid" data-testid="mermaid-test">
+            <code>flowchart LR\ninvalid syntax &&&</code>
+          </pre>
+        </body>)
+        .renderWithEffects();
+
+      const el = screen.getByShadowTestId('mermaid-test');
+      expect(el).not.toHaveStyle('display: none');
+      expect(el.nextSibling).toBeNull();
+      expect(consoleError).toHaveBeenCalledWith('Failed to render mermaid diagram', error);
+    });
   });
 
   describe('selectConfig', () => {
