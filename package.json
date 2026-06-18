@@ -112,5 +112,9 @@
     "url": "https://github.com/johanneswuerbach/backstage-plugin-techdocs-addon-mermaid",
     "directory": "."
   },
+  "homepage": "https://github.com/johanneswuerbach/backstage-plugin-techdocs-addon-mermaid#readme",
+  "bugs": {
+    "url": "https://github.com/johanneswuerbach/backstage-plugin-techdocs-addon-mermaid/issues"
+  },
   "packageManager": "yarn@4.8.1"
 }
