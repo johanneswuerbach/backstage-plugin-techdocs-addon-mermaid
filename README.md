@@ -74,6 +74,72 @@ graph TD;
 
 ~~~
 
+## Mermaid Configuration
+
+The plugin supports customizing the Mermaid configuration for light and dark themes, as well as a shared base configuration. The available options are:
+
+- `lightConfig` — Mermaid configuration applied when the Backstage theme is set to light mode.
+- `darkConfig` — Mermaid configuration applied when the Backstage theme is set to dark mode.
+- `config` — Shared configuration that is deep-merged on top of the selected theme configuration. Values here take precedence over `lightConfig`/`darkConfig`.
+
+Each option follows this schema:
+
+```typescript
+interface MermaidConfig {
+  // Theme for the diagram. Options: 'default' | 'base' | 'dark' | 'forest' | 'neutral' | 'null'
+  theme?: string;
+  // Custom theme variables to override the default theme colors, fonts, etc.
+  themeVariables?: Record<string, any>;
+  // Custom CSS to apply to the diagram
+  themeCSS?: string;
+  // Font family and size for the diagram
+  fontFamily?: string;
+  fontSize?: number;
+  // ... any other Mermaid configuration options
+}
+```
+
+See [Mermaid Config Schema](https://mermaid.ai/open-source/config/schema-docs/config.html) for all configuration options.
+
+### Legacy Frontend System
+
+Pass `lightConfig`, `darkConfig`, and `config` directly as props:
+
+```typescript jsx
+<Mermaid
+  lightConfig={{ theme: "default", themeVariables: { primaryColor: "#bb2528" } }}
+  darkConfig={{ theme: "dark", themeVariables: { primaryColor: "#bb2528" } }}
+  config={{ fontFamily: "Arial", fontSize: 14 }}
+/>
+```
+
+### New Frontend System
+
+When using the new frontend system, these options are configured via `app-config.yaml`
+under the `techdocs.addons.mermaid` key:
+
+```yaml
+# app-config.yaml
+techdocs:
+  addons:
+    mermaid:
+      lightConfig:
+        theme: default
+        themeVariables:
+          primaryColor: "#bb2528"
+      darkConfig:
+        theme: dark
+        themeVariables:
+          primaryColor: "#bb2528"
+      config:
+        fontFamily: Arial
+        fontSize: 14
+```
+
+No code changes are needed beyond the standard module registration shown in
+the [Getting Started](#getting-started) section — the addon reads the
+configuration automatically at runtime.
+
 ## Zoom and Pan Functionality
 
 The plugin supports interactive zoom and pan functionality for Mermaid diagrams. This allows users to:

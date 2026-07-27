@@ -3,6 +3,27 @@ export interface Config {
     addons?: {
       mermaid?: {
         /**
+         * Light theme configuration.
+         *
+         * @deepVisibility frontend
+         */
+        lightConfig?: object;
+
+        /**
+         * Dark theme configuration.
+         *
+         * @deepVisibility frontend
+         */
+        darkConfig?: object;
+
+        /**
+         * Shared configuration.
+         *
+         * @deepVisibility frontend
+         */
+        config?: object;
+
+        /**
          * Whether to enable zoom and pan on mermaid diagrams.
          *
          * @visibility frontend
