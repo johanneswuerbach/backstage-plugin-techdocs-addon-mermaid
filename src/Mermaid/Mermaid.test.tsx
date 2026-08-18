@@ -15,6 +15,7 @@
  */
 
 import { TechDocsAddonTester } from '@backstage/plugin-techdocs-addons-test-utils';
+import { waitFor } from '@testing-library/react';
 import { screen } from 'shadow-dom-testing-library';
 import mermaid from 'mermaid';
 
@@ -37,43 +38,207 @@ describe('Mermaid', () => {
     await TechDocsAddonTester.buildAddonsInTechDocs([
       <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
     ])
-      .withDom(<body>
-        <pre className="mermaid" data-testid="mermaid-test">
-          <code>flowchart LR</code>
-        </pre>
-      </body>)
+      .withDom(
+        <body>
+          <pre className="mermaid" data-testid="mermaid-test">
+            <code>flowchart LR</code>
+          </pre>
+        </body>,
+      )
       .renderWithEffects();
 
-    expect(screen.getByShadowTestId('mermaid-test')).toHaveStyle('display: none')
+    expect(screen.getByShadowTestId('mermaid-test')).toHaveStyle(
+      'display: none',
+    );
   });
 
   it('renders highlight tables', async () => {
     await TechDocsAddonTester.buildAddonsInTechDocs([
       <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
     ])
-      .withDom(<body>
-        <div className="highlighttable language-text" data-testid="mermaid-test">
-          <code>flowchart LR</code>
-        </div>
-      </body>)
+      .withDom(
+        <body>
+          <div
+            className="highlighttable language-text"
+            data-testid="mermaid-test"
+          >
+            <code>flowchart LR</code>
+          </div>
+        </body>,
+      )
       .renderWithEffects();
 
-    expect(screen.getByShadowTestId('mermaid-test')).toHaveStyle('display: none')
+    expect(screen.getByShadowTestId('mermaid-test')).toHaveStyle(
+      'display: none',
+    );
   });
 
   it('renders div highlights', async () => {
     await TechDocsAddonTester.buildAddonsInTechDocs([
       <Mermaid config={{ themeVariables: { lineColor: '#00ff00' } }} />,
     ])
-      .withDom(<body>
-        <div className="highlight language-text" data-testid="mermaid-test">
-          <table />
-          <code>flowchart LR</code>
-        </div>
-      </body>)
+      .withDom(
+        <body>
+          <div className="highlight language-text" data-testid="mermaid-test">
+            <table />
+            <code>flowchart LR</code>
+          </div>
+        </body>,
+      )
       .renderWithEffects();
 
-    expect(screen.getByShadowTestId('mermaid-test')).toHaveStyle('display: none')
+    expect(screen.getByShadowTestId('mermaid-test')).toHaveStyle(
+      'display: none',
+    );
+  });
+
+  it('renders modern flat mkdocs-material highlights', async () => {
+    await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
+      .withDom(
+        <body>
+          <div className="highlight" data-testid="mermaid-test">
+            <pre>
+              <code>flowchart LR</code>
+            </pre>
+            <button className="md-clipboard">Copy</button>
+          </div>
+        </body>,
+      )
+      .renderWithEffects();
+
+    expect(screen.getByShadowTestId('mermaid-test')).toHaveStyle(
+      'display: none',
+    );
+  });
+
+  it('renders direct mermaid content without a nested code element', async () => {
+    const detectType = jest.spyOn(mermaid, 'detectType');
+    const render = jest
+      .spyOn(mermaid, 'render')
+      .mockResolvedValue({ svg: '<svg />' });
+    render.mockClear();
+
+    await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
+      .withDom(
+        <body>
+          <div className="mermaid" data-testid="mermaid-test">
+            futureDiagram A --&gt; B
+          </div>
+        </body>,
+      )
+      .renderWithEffects();
+
+    await waitFor(() =>
+      expect(render).toHaveBeenCalledWith(
+        expect.any(String),
+        'futureDiagram A --> B',
+      ),
+    );
+    expect(detectType).not.toHaveBeenCalled();
+    detectType.mockRestore();
+    render.mockRestore();
+  });
+
+  it('removes inline line-number gutters before detection and rendering', async () => {
+    const render = jest
+      .spyOn(mermaid, 'render')
+      .mockResolvedValue({ svg: '<svg />' });
+    render.mockClear();
+
+    await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
+      .withDom(
+        <body>
+          <div className="highlight">
+            <pre>
+              <code>
+                <span className="linenos">1</span>
+                {'sequenceDiagram\n'}
+                <span className="linenos">2</span>
+                {'    Alice->>Bob: Hello'}
+              </code>
+            </pre>
+          </div>
+        </body>,
+      )
+      .renderWithEffects();
+
+    await waitFor(() => {
+      expect(render).toHaveBeenCalledWith(
+        expect.any(String),
+        'sequenceDiagram\n    Alice->>Bob: Hello',
+      );
+    });
+    render.mockRestore();
+  });
+
+  it('renders nested legacy candidates only once', async () => {
+    const render = jest
+      .spyOn(mermaid, 'render')
+      .mockResolvedValue({ svg: '<svg />' });
+    render.mockClear();
+
+    await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
+      .withDom(
+        <body>
+          <table className="highlighttable language-text">
+            <tbody>
+              <tr>
+                <td>
+                  <div className="highlight">
+                    <pre>
+                      <code>flowchart LR</code>
+                    </pre>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </body>,
+      )
+      .renderWithEffects();
+
+    await waitFor(() => expect(render).toHaveBeenCalledTimes(1));
+    render.mockRestore();
+  });
+
+  it('does not render an existing generated diagram again', async () => {
+    const render = jest
+      .spyOn(mermaid, 'render')
+      .mockResolvedValue({ svg: '<svg />' });
+    render.mockClear();
+
+    await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
+      .withDom(
+        <body>
+          <div className="mermaid" data-mermaid-rendered="true">
+            <svg>
+              <text>Existing diagram</text>
+            </svg>
+          </div>
+        </body>,
+      )
+      .renderWithEffects();
+
+    expect(render).not.toHaveBeenCalled();
+    render.mockRestore();
+  });
+
+  it('leaves non-mermaid highlights visible', async () => {
+    await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
+      .withDom(
+        <body>
+          <div className="highlight" data-testid="ordinary-code">
+            <pre>
+              <code>const answer = 42;</code>
+            </pre>
+          </div>
+        </body>,
+      )
+      .renderWithEffects();
+
+    expect(screen.getByShadowTestId('ordinary-code')).not.toHaveStyle(
+      'display: none',
+    );
   });
 
   describe('error handling', () => {
@@ -84,29 +249,36 @@ describe('Mermaid', () => {
     it('restores original element and logs error when render fails', async () => {
       const error = new Error('Parse error');
       jest.spyOn(mermaid, 'render').mockRejectedValue(error);
-      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleError = jest
+        .spyOn(console, 'error')
+        .mockImplementation(() => {});
 
-      await TechDocsAddonTester.buildAddonsInTechDocs([
-        <Mermaid />,
-      ])
-        .withDom(<body>
-          <pre className="mermaid" data-testid="mermaid-test">
-            <code>flowchart LR\ninvalid syntax &&&</code>
-          </pre>
-        </body>)
+      await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
+        .withDom(
+          <body>
+            <pre className="mermaid" data-testid="mermaid-test">
+              <code>flowchart LR\ninvalid syntax &&&</code>
+            </pre>
+          </body>,
+        )
         .renderWithEffects();
 
       const el = screen.getByShadowTestId('mermaid-test');
       expect(el).not.toHaveStyle('display: none');
       expect(el.nextSibling).toBeNull();
-      expect(consoleError).toHaveBeenCalledWith('Failed to render mermaid diagram', error);
+      expect(consoleError).toHaveBeenCalledWith(
+        'Failed to render mermaid diagram',
+        error,
+      );
     });
   });
 
   describe('selectConfig', () => {
     const legacyConfig = { config: { fontFamily: 'legacy-config' } };
     const lightConfig = { lightConfig: { fontFamily: 'light-config' } };
-    const darkConfig: MermaidProps = { darkConfig: { fontFamily: 'dark-config', theme: 'dark' } };
+    const darkConfig: MermaidProps = {
+      darkConfig: { fontFamily: 'dark-config', theme: 'dark' },
+    };
 
     it('legacy config is preferred for backwards-compatibility', () => {
       let config = selectConfig('light', { ...legacyConfig });
@@ -128,7 +300,7 @@ describe('Mermaid', () => {
 
     it('dark theme is set by default when variant is dark', () => {
       const config = selectConfig('dark', {});
-      expect(config).toEqual({ theme: 'dark'});
+      expect(config).toEqual({ theme: 'dark' });
     });
   });
 });
