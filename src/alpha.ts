@@ -10,6 +10,7 @@ import {
   configApiRef,
 } from "@backstage/frontend-plugin-api";
 import type { MermaidProps } from "./Mermaid/props";
+import type { MermaidConfig } from "mermaid";
 
 /**
  * Wrapper that reads zoom configuration from app-config.yaml and forwards
@@ -19,6 +20,9 @@ import type { MermaidProps } from "./Mermaid/props";
  * rendered with no props — preserving the original behaviour.
  *
  * Supported app-config keys:
+ *   techdocs.addons.mermaid.lightConfig             — MermaidConfig
+ *   techdocs.addons.mermaid.darkConfig              — MermaidConfig
+ *   techdocs.addons.mermaid.config                  — MermaidConfig
  *   techdocs.addons.mermaid.enableZoom              — boolean (default: false)
  *   techdocs.addons.mermaid.zoomOptions.scaleExtent  — [min, max]
  *   techdocs.addons.mermaid.zoomOptions.translateExtent — [[xmin, ymin], [xmax, ymax]]
@@ -30,6 +34,9 @@ const ConfiguredMermaidAddon = () => {
   const props: MermaidProps = {};
 
   if (mermaidConfig) {
+    props.lightConfig = mermaidConfig.getOptional<MermaidConfig>("lightConfig");
+    props.darkConfig = mermaidConfig.getOptional<MermaidConfig>("darkConfig");
+    props.config = mermaidConfig.getOptional<MermaidConfig>("config");
     props.enableZoom = mermaidConfig.getOptionalBoolean("enableZoom") ?? false;
 
     const zoomConfig = mermaidConfig.getOptionalConfig("zoomOptions");
