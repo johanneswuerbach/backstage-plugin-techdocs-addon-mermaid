@@ -78,6 +78,7 @@
     "@backstage/cli": "backstage:^",
     "@backstage/core-app-api": "backstage:^",
     "@backstage/dev-utils": "backstage:^",
+    "@backstage/frontend-test-utils": "backstage:^",
     "@backstage/plugin-techdocs-addons-test-utils": "backstage:^",
     "@backstage/test-utils": "backstage:^",
     "@date-io/core": "^1.3.13",
