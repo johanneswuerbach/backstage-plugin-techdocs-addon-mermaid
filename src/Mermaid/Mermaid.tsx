@@ -18,18 +18,22 @@ import { useEffect, useState } from 'react';
 import { PaletteType, useTheme } from '@material-ui/core';
 
 import { useShadowRootElements } from '@backstage/plugin-techdocs-react';
-import mermaid, { MermaidConfig } from 'mermaid'
+import mermaid, { MermaidConfig } from 'mermaid';
 import { isMermaidCode } from './hooks';
 import { MermaidProps } from './props';
 import { BackstageTheme } from '@backstage/theme';
 import { ZoomHandler } from './zoomHandler';
 import { deepMerge } from './utils';
 
-export function selectConfig(backstagePalette: PaletteType, properties: MermaidProps): MermaidConfig {
+export function selectConfig(
+  backstagePalette: PaletteType,
+  properties: MermaidProps,
+): MermaidConfig {
   // Determine the default config based on palette
-  const defaultConfig = backstagePalette === 'light'
-    ? (properties.lightConfig || {})
-    : Object.assign({ theme: 'dark' }, properties.darkConfig);
+  const defaultConfig =
+    backstagePalette === 'light'
+      ? properties.lightConfig || {}
+      : Object.assign({ theme: 'dark' }, properties.darkConfig);
 
   // If a config is provided, deep merge it with the default config (user values take precedence)
   if (properties.config) {
@@ -43,54 +47,119 @@ export function selectConfig(backstagePalette: PaletteType, properties: MermaidP
  * Show report issue button when text is highlighted
  */
 
-let diagramId = 0
+let diagramId = 0;
 
-const makeDiagram = async (el: HTMLDivElement | HTMLPreElement, diagramText: string, properties: MermaidProps,) => {
-  el.style.display = 'none'
+const candidateSelectors = [
+  '.highlighttable',
+  '.highlight',
+  'pre.mermaid',
+  '.mermaid',
+  '.language-mermaid',
+];
+const lineNumberSelectors = '.linenos, .linenodiv, .lnt';
 
-  const diagramElement = document.createElement('div')
-  diagramElement.className = "mermaid"
+const stripLineNumberGutters = (text: string): string => {
+  const lines = text.split('\n');
+  if (lines.length < 2) {
+    return text.trim();
+  }
+
+  const stripped: string[] = [];
+  for (let index = 0; index < lines.length; index += 1) {
+    const expected = String(index + 1);
+    const line = lines[index];
+    if (line === expected) {
+      stripped.push('');
+      continue;
+    }
+    if (line.startsWith(`${expected} `) || line.startsWith(`${expected}\t`)) {
+      stripped.push(line.slice(expected.length + 1));
+      continue;
+    }
+    const nextChar = line.charAt(expected.length);
+    if (
+      line.startsWith(expected) &&
+      nextChar !== '' &&
+      /[A-Za-z%]/.test(nextChar)
+    ) {
+      stripped.push(line.slice(expected.length));
+      continue;
+    }
+    return text.trim();
+  }
+  return stripped.join('\n').trim();
+};
+
+const getDiagramSource = (element: HTMLElement): string => {
+  const sourceRoot = element.matches('code')
+    ? element
+    : (element.querySelector('code') ?? element);
+  const clone = sourceRoot.cloneNode(true);
+  if (clone instanceof HTMLElement) {
+    clone
+      .querySelectorAll(lineNumberSelectors)
+      .forEach((node) => node.remove());
+  }
+  return stripLineNumberGutters(clone.textContent ?? '');
+};
+
+const outermostCandidates = (elements: HTMLElement[]): HTMLElement[] => {
+  const unique = [...new Set(elements)];
+  return unique.filter((element) =>
+    unique.every((other) => other === element || !other.contains(element)),
+  );
+};
+
+const makeDiagram = async (
+  el: HTMLElement,
+  diagramText: string,
+  properties: MermaidProps,
+) => {
+  el.style.display = 'none';
+
+  const diagramElement = document.createElement('div');
+  diagramElement.className = 'mermaid';
+  diagramElement.dataset.mermaidRendered = 'true';
   // Clip the element when outside parent when panning
   diagramElement.style.overflow = 'hidden';
 
   el.parentNode?.insertBefore(diagramElement, el.nextSibling);
 
-  const id = `mermaid-${diagramId++}`
+  const id = `mermaid-${diagramId++}`;
   try {
     const { svg, bindFunctions } = await mermaid.render(id, diagramText);
-    diagramElement.innerHTML = svg
+    diagramElement.innerHTML = svg;
     bindFunctions?.(diagramElement);
 
     if (properties.enableZoom) {
       const svgEl = diagramElement.querySelector('svg');
       const zoomHandler = new ZoomHandler(
-       diagramElement,
-       svgEl as SVGSVGElement,
-       properties.zoomOptions,
+        diagramElement,
+        svgEl as SVGSVGElement,
+        properties.zoomOptions,
       );
       zoomHandler.initialize();
     }
   } catch (e) {
-    el.style.display = ''
-    diagramElement.remove()
-    console.error('Failed to render mermaid diagram', e)
+    el.style.display = '';
+    diagramElement.remove();
+    // eslint-disable-next-line no-console
+    console.error('Failed to render mermaid diagram', e);
   }
-}
+};
 
 export const MermaidAddon = (properties: MermaidProps) => {
-  const highlightTables = useShadowRootElements<HTMLDivElement>(['.highlighttable']);
-  const highlightDivs = useShadowRootElements<HTMLDivElement>(['.highlight']);
-  const mermaidPreBlocks = useShadowRootElements<HTMLPreElement>(['.mermaid']);
+  const candidates = useShadowRootElements<HTMLElement>(candidateSelectors);
   const theme = useTheme<BackstageTheme>();
 
-  const [ initialized, setInitialized ] = useState(false);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     if (initialized) {
       return;
     }
     const config: MermaidConfig = selectConfig(theme.palette.type, properties);
-    if ( properties.iconLoaders ) {
+    if (properties.iconLoaders) {
       mermaid.registerIconPacks(properties.iconLoaders);
     }
     if (properties.layoutLoaders) {
@@ -105,90 +174,29 @@ export const MermaidAddon = (properties: MermaidProps) => {
       return;
     }
 
-    highlightTables.forEach(highlightTable => {
-      if (!highlightTable.classList.contains('language-text')) {
-         return;
+    outermostCandidates(candidates).forEach((candidate) => {
+      if (
+        candidate.style.display === 'none' ||
+        candidate.dataset.mermaidRendered === 'true'
+      ) {
+        return;
       }
 
-      // Skip already processed
-      if (highlightTable.style.display === 'none') {
-        return
+      const diagramText = getDiagramSource(candidate);
+      if (!diagramText) {
+        return;
       }
 
-      const codeBlock = highlightTable.querySelector('code')
-      if (!codeBlock) {
-        return
+      const isExplicitMermaid = candidate.matches(
+        'pre.mermaid, .mermaid, .language-mermaid',
+      );
+      if (!isExplicitMermaid && !isMermaidCode(diagramText)) {
+        return;
       }
 
-      const diagramText = codeBlock.textContent || ''
-
-      // Ideally we could detect mermaid based on some annotation, but use a regex for now
-      if (!isMermaidCode(diagramText)) {
-        return
-      }
-
-      makeDiagram(highlightTable, diagramText, properties)
+      makeDiagram(candidate, diagramText, properties);
     });
-  }, [initialized, highlightTables, properties]);
-
-  useEffect(() => {
-    if (!initialized) {
-      return;
-    }
-
-    highlightDivs.forEach(highlightDiv => {
-      if (!highlightDiv.classList.contains('language-text')) {
-         return;
-      }
-
-      // Skip already processed
-      if (highlightDiv.style.display === 'none') {
-        return
-      }
-
-      // skip mkdocs-material < 9 code blocks (handled above)
-      const table = highlightDiv.querySelector('table')
-      if (!table) {
-        return
-      }
-
-      const codeBlock = highlightDiv.querySelector('code')
-      if (!codeBlock) {
-        return
-      }
-
-      const diagramText = codeBlock.textContent || ''
-
-      // Ideally we could detect mermaid based on some annotation, but use a regex for now
-      if (!isMermaidCode(diagramText)) {
-        return
-      }
-
-      makeDiagram(highlightDiv, diagramText, properties)
-    });
-  }, [initialized, highlightDivs, properties]);
-
-  useEffect(() => {
-    if (!initialized) {
-      return;
-    }
-
-    mermaidPreBlocks.forEach(mermaidPreBlock => {
-      // Skip already processed
-      if (mermaidPreBlock.style.display === 'none') {
-        return
-      }
-
-      const codeBlock = mermaidPreBlock.querySelector('code')
-      if (!codeBlock) {
-        return
-      }
-
-      const diagramText = codeBlock.textContent || ''
-
-      makeDiagram(mermaidPreBlock, diagramText, properties)
-    });
-  }, [initialized, mermaidPreBlocks, properties]);
+  }, [initialized, candidates, properties]);
 
   return null;
 };
