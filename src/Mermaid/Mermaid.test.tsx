@@ -15,7 +15,7 @@
  */
 
 import { TechDocsAddonTester } from '@backstage/plugin-techdocs-addons-test-utils';
-import { waitFor } from '@testing-library/react';
+import { waitFor } from '@testing-library/dom';
 import { screen } from 'shadow-dom-testing-library';
 import mermaid from 'mermaid';
 
@@ -115,7 +115,7 @@ describe('Mermaid', () => {
     const detectType = jest.spyOn(mermaid, 'detectType');
     const render = jest
       .spyOn(mermaid, 'render')
-      .mockResolvedValue({ svg: '<svg />' });
+      .mockResolvedValue({ svg: '<svg />', diagramType: 'flowchart' });
     render.mockClear();
 
     await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
@@ -142,7 +142,7 @@ describe('Mermaid', () => {
   it('removes inline line-number gutters before detection and rendering', async () => {
     const render = jest
       .spyOn(mermaid, 'render')
-      .mockResolvedValue({ svg: '<svg />' });
+      .mockResolvedValue({ svg: '<svg />', diagramType: 'flowchart' });
     render.mockClear();
 
     await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
@@ -174,7 +174,7 @@ describe('Mermaid', () => {
   it('renders nested legacy candidates only once', async () => {
     const render = jest
       .spyOn(mermaid, 'render')
-      .mockResolvedValue({ svg: '<svg />' });
+      .mockResolvedValue({ svg: '<svg />', diagramType: 'flowchart' });
     render.mockClear();
 
     await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
@@ -204,7 +204,7 @@ describe('Mermaid', () => {
   it('does not render an existing generated diagram again', async () => {
     const render = jest
       .spyOn(mermaid, 'render')
-      .mockResolvedValue({ svg: '<svg />' });
+      .mockResolvedValue({ svg: '<svg />', diagramType: 'flowchart' });
     render.mockClear();
 
     await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
@@ -239,6 +239,61 @@ describe('Mermaid', () => {
     expect(screen.getByShadowTestId('ordinary-code')).not.toHaveStyle(
       'display: none',
     );
+  });
+
+  it('leaves highlights that declare another language alone', async () => {
+    const render = jest
+      .spyOn(mermaid, 'render')
+      .mockResolvedValue({ svg: '<svg />', diagramType: 'flowchart' });
+    render.mockClear();
+
+    await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
+      .withDom(
+        <body>
+          <div className="highlight" data-testid="python-code">
+            <pre>
+              <code className="language-python">graph = build_graph()</code>
+            </pre>
+          </div>
+        </body>,
+      )
+      .renderWithEffects();
+
+    expect(screen.getByShadowTestId('python-code')).not.toHaveStyle(
+      'display: none',
+    );
+    expect(render).not.toHaveBeenCalled();
+    render.mockRestore();
+  });
+
+  it('renders language-mermaid fences without guessing the type', async () => {
+    const detectType = jest.spyOn(mermaid, 'detectType');
+    const render = jest
+      .spyOn(mermaid, 'render')
+      .mockResolvedValue({ svg: '<svg />', diagramType: 'flowchart' });
+    render.mockClear();
+
+    await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid />])
+      .withDom(
+        <body>
+          <div className="highlight" data-testid="mermaid-test">
+            <pre>
+              <code className="language-mermaid">futureDiagram A --&gt; B</code>
+            </pre>
+          </div>
+        </body>,
+      )
+      .renderWithEffects();
+
+    await waitFor(() =>
+      expect(render).toHaveBeenCalledWith(
+        expect.any(String),
+        'futureDiagram A --> B',
+      ),
+    );
+    expect(detectType).not.toHaveBeenCalled();
+    detectType.mockRestore();
+    render.mockRestore();
   });
 
   describe('error handling', () => {

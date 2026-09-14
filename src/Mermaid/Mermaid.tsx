@@ -103,6 +103,25 @@ const getDiagramSource = (element: HTMLElement): string => {
   return stripLineNumberGutters(clone.textContent ?? '');
 };
 
+/**
+ * mkdocs tags a highlighted block with the fence language, either on the
+ * wrapper or on the nested `pre`/`code`, e.g. `language-python`. Languages
+ * pygments has no lexer for - `mermaid` among them, depending on the mkdocs
+ * version - fall back to `language-text`.
+ */
+const languageClassPattern = /(?:^|\s)language-([\w-]+)/;
+
+const declaredLanguage = (element: HTMLElement): string | undefined => {
+  const carriers = [element, ...element.querySelectorAll('pre, code')];
+  for (const carrier of carriers) {
+    const match = languageClassPattern.exec(carrier.className);
+    if (match) {
+      return match[1];
+    }
+  }
+  return undefined;
+};
+
 const outermostCandidates = (elements: HTMLElement[]): HTMLElement[] => {
   const unique = [...new Set(elements)];
   return unique.filter((element) =>
@@ -187,11 +206,21 @@ export const MermaidAddon = (properties: MermaidProps) => {
         return;
       }
 
-      const isExplicitMermaid = candidate.matches(
-        'pre.mermaid, .mermaid, .language-mermaid',
-      );
-      if (!isExplicitMermaid && !isMermaidCode(diagramText)) {
-        return;
+      const language = declaredLanguage(candidate);
+      const isExplicitMermaid =
+        language === 'mermaid' || candidate.matches('pre.mermaid, .mermaid');
+
+      if (!isExplicitMermaid) {
+        // A block that declares a language is an ordinary code sample. Only
+        // undeclared and `text` blocks are guessed at, otherwise snippets that
+        // happen to start with `graph`, `info` or `pie` get mistaken for
+        // diagrams.
+        if (language && language !== 'text') {
+          return;
+        }
+        if (!isMermaidCode(diagramText)) {
+          return;
+        }
       }
 
       makeDiagram(candidate, diagramText, properties);
