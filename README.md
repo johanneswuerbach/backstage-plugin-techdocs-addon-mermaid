@@ -205,6 +205,50 @@ No code changes are needed beyond the standard module registration shown in
 the [Getting Started](#getting-started) section — the addon reads the
 configuration automatically at runtime.
 
+## Icon Packs
+
+Mermaid diagrams can reference icons from registered Iconify icon packs using the `icon` shape syntax, e.g. `icon "logos:github" "GitHub"`. Custom icon packs can be registered as follows:
+
+### Legacy Frontend System
+
+Pass `iconLoaders` directly as a prop, either with inline icons or an async loader:
+
+```typescript jsx
+<Mermaid
+  iconLoaders={[
+    { name: 'custom', icons: { prefix: 'custom', icons: { 'my-icon': { body: '<path d="M0 0" />' } } } },
+    { name: 'logos', loader: () => import('@iconify-json/logos').then((m) => m.icons) },
+  ]}
+/>
+```
+
+### New Frontend System
+
+When using the new frontend system, icon packs are configured via `app-config.yaml` under the `techdocs.addons.mermaid.iconPacks` key. Each entry needs a `name` (the prefix used to reference its icons in diagrams) and either:
+
+- `icons` — an inline [Iconify JSON](https://iconify.design/docs/types/iconify-json.html) icon set, for small custom packs, or
+- `package` — the name of a published `@iconify-json/*` package (optionally with a subpath). These are resolved against the [unpkg](https://unpkg.com) CDN. For other/custom/internal domains, `http(s)://` URLs are resolved directly. Either way, this is fetched as JSON at runtime, so the package does **not** need to be installed as a dependency of your Backstage app.
+
+```yaml
+# app-config.yaml
+techdocs:
+  addons:
+    mermaid:
+      iconPacks:
+        - name: custom
+          icons:
+            prefix: custom
+            icons:
+              my-icon:
+                body: '<path d="M0 0" />'
+        - name: logos
+          package: '@iconify-json/logos'
+        - name: hosted
+          package: 'https://example.com/icons/my-icons.json'
+```
+
+> **Note:** Because the `package` field is fetched from a public CDN at request time rather than pinned as a versioned dependency, its content isn't reviewed or locked the way an installed npm package would be. Prefer inline `icons` for anything sensitive, or a `package`/URL you control and trust.
+
 ## Auto-Detection vs. Manual Detection
 
 By default, this plugin will autodetect diagrams based on the starting token of the code block. In some cases, however, this auto-detection is not sufficient, for example, because of an unrecognized

@@ -49,6 +49,7 @@
     "tsc:full": "tsc --skipLibCheck false --incremental false"
   },
   "dependencies": {
+    "@backstage/config": "backstage:^",
     "@backstage/core-components": "backstage:^",
     "@backstage/core-plugin-api": "backstage:^",
     "@backstage/frontend-plugin-api": "backstage:^",
