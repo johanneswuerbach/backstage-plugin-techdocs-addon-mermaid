@@ -18,8 +18,9 @@ import { useEffect, useState } from 'react';
 import { PaletteType, useTheme } from '@material-ui/core';
 
 import { useShadowRootElements } from '@backstage/plugin-techdocs-react';
-import mermaid, { MermaidConfig } from 'mermaid';
+import type { MermaidConfig } from 'mermaid';
 import { isMermaidCode } from './hooks';
+import { loadMermaid, MermaidApi } from './loadMermaid';
 import { MermaidProps } from './props';
 import { BackstageTheme } from '@backstage/theme';
 import { ZoomHandler } from './zoomHandler';
@@ -130,6 +131,7 @@ const outermostCandidates = (elements: HTMLElement[]): HTMLElement[] => {
 };
 
 const makeDiagram = async (
+  mermaid: MermaidApi,
   el: HTMLElement,
   diagramText: string,
   properties: MermaidProps,
@@ -171,25 +173,43 @@ export const MermaidAddon = (properties: MermaidProps) => {
   const candidates = useShadowRootElements<HTMLElement>(candidateSelectors);
   const theme = useTheme<BackstageTheme>();
 
-  const [initialized, setInitialized] = useState(false);
+  const [mermaid, setMermaid] = useState<MermaidApi>();
 
   useEffect(() => {
-    if (initialized) {
-      return;
+    if (mermaid) {
+      return undefined;
     }
-    const config: MermaidConfig = selectConfig(theme.palette.type, properties);
-    if (properties.iconLoaders) {
-      mermaid.registerIconPacks(properties.iconLoaders);
-    }
-    if (properties.layoutLoaders) {
-      mermaid.registerLayoutLoaders(properties.layoutLoaders);
-    }
-    mermaid.initialize({ suppressErrorRendering: true, ...config });
-    setInitialized(true);
-  }, [initialized, properties, theme.palette.type]);
+    let cancelled = false;
+    loadMermaid().then(
+      (loaded) => {
+        if (cancelled) {
+          return;
+        }
+        const config: MermaidConfig = selectConfig(
+          theme.palette.type,
+          properties,
+        );
+        if (properties.iconLoaders) {
+          loaded.registerIconPacks(properties.iconLoaders);
+        }
+        if (properties.layoutLoaders) {
+          loaded.registerLayoutLoaders(properties.layoutLoaders);
+        }
+        loaded.initialize({ suppressErrorRendering: true, ...config });
+        setMermaid(loaded);
+      },
+      (error) => {
+        // eslint-disable-next-line no-console
+        console.error('Failed to load mermaid', error);
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [mermaid, properties, theme.palette.type]);
 
   useEffect(() => {
-    if (!initialized) {
+    if (!mermaid) {
       return;
     }
 
@@ -218,14 +238,14 @@ export const MermaidAddon = (properties: MermaidProps) => {
         if (language && language !== 'text') {
           return;
         }
-        if (!isMermaidCode(diagramText)) {
+        if (!isMermaidCode(diagramText, mermaid)) {
           return;
         }
       }
 
-      makeDiagram(candidate, diagramText, properties);
+      makeDiagram(mermaid, candidate, diagramText, properties);
     });
-  }, [initialized, candidates, properties]);
+  }, [mermaid, candidates, properties]);
 
   return null;
 };

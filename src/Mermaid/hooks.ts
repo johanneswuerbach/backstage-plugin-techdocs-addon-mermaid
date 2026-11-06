@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import mermaid from 'mermaid'
+import type { MermaidApi } from './loadMermaid';
 
-export const isMermaidCode = (code: string): boolean => {
+export const isMermaidCode = (code: string, mermaid: MermaidApi): boolean => {
   try {
     mermaid.detectType(code)
     return true
