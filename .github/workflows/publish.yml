@@ -1,23 +1,42 @@
 name: Publish Package to npmjs
 on:
   release:
-    types: [created]
+    types: [published]
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
     - uses: actions/checkout@v4
-    # Setup .npmrc file to publish to npm
+      with:
+        persist-credentials: false
     - uses: actions/setup-node@v4
       with:
         node-version: 24
         cache: yarn
-        registry-url: 'https://registry.npmjs.org'
+    - name: Verify release tag matches package version
+      env:
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
+      run: |
+        node <<'NODE'
+        const { version } = require('./package.json');
+        if (process.env.RELEASE_TAG !== `v${version}`) {
+          throw new Error(`Release tag must be v${version}`);
+        }
+        NODE
     - run: yarn install --immutable
     - run: yarn tsc:full
     - run: yarn build
-    - name: Setup .yarnrc.yml file to allow publication to https://registry.npmjs.org with a 'yarn npm publish'
-      shell: bash
-      run: |
-        echo "npmAuthToken: ${{ secrets.NPM_TOKEN }}" >> ~/.yarnrc.yml
-    - run: yarn npm publish
+    - run: yarn test --watch=false
+    # Yarn resolves backstage: dependencies and runs Backstage's packaging hooks.
+    - run: yarn pack --out "${RUNNER_TEMP}/package.tgz"
+    - name: Publish with npm trusted publishing
+      env:
+        NPM_DIST_TAG: ${{ github.event.release.prerelease && 'next' || 'latest' }}
+      run: npm publish "${RUNNER_TEMP}/package.tgz" --access public --tag "$NPM_DIST_TAG"

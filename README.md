@@ -301,6 +301,32 @@ config:
 
 This plugin can be developed in the context of an existing Backstage deployment or a [new local deployment](https://backstage.io/docs/getting-started/#1-create-your-backstage-app).
 
+### Releasing to npm
+
+The `publish.yml` workflow uses [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/)
+to authenticate with GitHub Actions OIDC, without an `NPM_TOKEN` secret.
+Before the first automated release, a package maintainer must configure a GitHub Actions
+trusted publisher in the npm package settings with:
+
+- Organization or user: `johanneswuerbach`
+- Repository: `backstage-plugin-techdocs-addon-mermaid`
+- Workflow filename: `publish.yml`
+- Environment name: leave empty
+- Allow direct publishing with `npm publish`
+
+Once trusted publishing is configured and verified, remove the old `NPM_TOKEN`
+repository secret and revoke the token in npm.
+
+To release, merge a version bump in `package.json`, tag that commit as `v<version>`
+(for example, `v0.30.0`), and publish a GitHub release for that tag. Pushing a tag
+alone or saving a draft release does not publish to npm. The workflow checks that
+the tag matches the package version, runs type checks, builds, tests, and packs
+with Yarn before publishing the tarball with npm. Node.js 24 supplies an npm CLI
+that supports trusted publishing (npm 11.5.1 or later).
+
+Regular releases use the npm `latest` dist-tag; GitHub prereleases use `next`.
+Use a new package version for each release; npm versions cannot be overwritten.
+
 ### Setup for Deployment
 
 1. Fork and clone this repo into the plugins folder of your Backstage codebase.
