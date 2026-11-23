@@ -43,7 +43,15 @@ export type MermaidProps = {
      * When true, users can interact with diagrams using mouse/touch gestures.
      */
     enableZoom?: boolean;
-    /** 
+    /**
+     * Turns flowchart nodes labelled `"bs:<entity ref>"` into catalog
+     * entities, showing the entity's title and linking to its page.
+     * Off by default.
+     *
+     * @experimental The syntax and behavior may change in any release.
+     */
+    experimentalEntityNodes?: boolean;
+    /**
      * Configuration options for zoom and pan behavior.
      * Only used when enableZoom is set to true.
      */

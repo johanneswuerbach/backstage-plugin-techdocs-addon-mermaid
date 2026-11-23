@@ -166,7 +166,9 @@ configuration automatically at runtime.
 
 ## Catalog Entities in Flowcharts (Experimental)
 
-Label a flowchart node `bs:<entity ref>` to show a catalog entity. The addon replaces the label with the entity's title from the catalog and links the node to the entity's page:
+> **Experimental:** this is off by default, and its syntax and behavior may change in any release, including minor ones.
+
+With `experimentalEntityNodes` turned on, you can label a flowchart node `bs:<entity ref>` to show a catalog entity. The addon replaces the label with the entity's title from the catalog and links the node to the entity's page:
 
 ~~~markdown
 ```mermaid
@@ -177,6 +179,23 @@ flowchart LR
 ~~~
 
 Refs use the catalog's standard format, `<kind>:[<namespace>/]<name>`, and the namespace defaults to `default`. Titles come from the catalog's entity presentation API, which batches and caches lookups across diagrams. If the catalog doesn't answer within 3 seconds, the node shows the entity's name instead. Without this addon, for example in other markdown previews, the diagram still renders and shows the raw refs as labels.
+
+To turn it on in the **legacy frontend system**, pass the prop:
+
+```typescript jsx
+<Mermaid experimentalEntityNodes />
+```
+
+In the **new frontend system**, set it in `app-config.yaml`:
+
+```yaml
+techdocs:
+  addons:
+    mermaid:
+      experimentalEntityNodes: true
+```
+
+The [`techdocs-cli` preview app](#preview-docs-locally-with-techdocs-cli) has it turned on. It has no catalog, so entity nodes there show the entity's name.
 
 ## Zoom and Pan Functionality
 

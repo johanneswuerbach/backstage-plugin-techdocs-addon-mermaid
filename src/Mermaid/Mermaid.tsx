@@ -72,18 +72,25 @@ const useEntityNodeLookup = (): EntityNodeLookup => {
   return useMemo(
     () => ({
       async title(ref) {
+        const fallbackTitle = defaultEntityPresentation(ref).primaryTitle;
         if (!presentationApi) {
-          return defaultEntityPresentation(ref).primaryTitle;
+          return fallbackTitle;
         }
-        const presentation = presentationApi.forEntity(stringifyEntityRef(ref));
-        const fallback = new Promise<typeof presentation.snapshot>(resolve =>
-          setTimeout(() => resolve(presentation.snapshot), entityTitleTimeoutMs),
-        );
-        const snapshot = await Promise.race([
-          presentation.promise,
-          fallback,
-        ]).catch(() => presentation.snapshot);
-        return snapshot.primaryTitle;
+        try {
+          const presentation = presentationApi.forEntity(
+            stringifyEntityRef(ref),
+          );
+          const timeout = new Promise<undefined>(resolve =>
+            setTimeout(() => resolve(undefined), entityTitleTimeoutMs),
+          );
+          const snapshot =
+            (await Promise.race([presentation.promise, timeout])) ??
+            presentation.snapshot;
+          return snapshot?.primaryTitle ?? fallbackTitle;
+        } catch {
+          // A failing lookup shouldn't break the diagram.
+          return fallbackTitle;
+        }
       },
       url(ref) {
         return entityRoute?.(entityRouteParams(ref));
@@ -248,7 +255,9 @@ const makeDiagram = async (
   try {
     const { svg, bindFunctions } = await mermaid.render(
       id,
-      await resolveEntityNodes(diagramText, entityNodeLookup),
+      properties.experimentalEntityNodes
+        ? await resolveEntityNodes(diagramText, entityNodeLookup)
+        : diagramText,
     );
     diagramElement.innerHTML = svg;
     bindFunctions?.(diagramElement);
