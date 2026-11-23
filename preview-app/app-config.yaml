@@ -18,6 +18,6 @@ techdocs:
     allowedCustomElementAttributeNameRegExp: '^live-reload-(epoch|request-id)$'
   addons:
     mermaid:
-      # Lets docs authors preview `bs:` catalog entity nodes. Experimental and
+      # Lets docs authors preview `entity:` catalog entity nodes. Experimental and
       # off by default in Backstage apps.
       experimentalEntityNodes: true

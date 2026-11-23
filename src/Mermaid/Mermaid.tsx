@@ -29,7 +29,10 @@ import {
   entityRouteParams,
   entityRouteRef,
 } from '@backstage/plugin-catalog-react';
-import { useShadowRootElements } from '@backstage/plugin-techdocs-react';
+import {
+  useShadowRootElements,
+  useTechDocsReaderPage,
+} from '@backstage/plugin-techdocs-react';
 import type { MermaidConfig } from 'mermaid';
 import { isMermaidCode } from './hooks';
 import { loadMermaid, MermaidApi } from './loadMermaid';
@@ -38,6 +41,7 @@ import { BackstageTheme } from '@backstage/theme';
 import { ZoomHandler } from './zoomHandler';
 import { deepMerge } from './utils';
 import { EntityNodeLookup, resolveEntityNodes } from './entityNodes';
+import { bindAppLinks, useNavigateToAppPath } from './links';
 
 /**
  * How long a diagram waits for entity titles from the catalog before it
@@ -62,7 +66,7 @@ const useEntityRoute = ():
 };
 
 /**
- * Resolves `bs:` entity nodes through the catalog's presentation API, which
+ * Resolves `entity:` nodes through the catalog's presentation API, which
  * batches and caches lookups, and links them with the app's entity route.
  */
 const useEntityNodeLookup = (): EntityNodeLookup => {
@@ -234,12 +238,25 @@ const bindActorMenus = (diagramElement: HTMLElement) => {
     });
 };
 
+/** What a diagram needs from the addon and the TechDocs page it's on. */
+type DiagramContext = {
+  properties: MermaidProps;
+  entityNodeLookup: EntityNodeLookup;
+  /** The namespace of the entity whose docs are shown. */
+  docsNamespace: string;
+  navigateToAppPath: (path: string) => void;
+};
+
 const makeDiagram = async (
   mermaid: MermaidApi,
   el: HTMLElement,
   diagramText: string,
-  properties: MermaidProps,
-  entityNodeLookup: EntityNodeLookup,
+  {
+    properties,
+    entityNodeLookup,
+    docsNamespace,
+    navigateToAppPath,
+  }: DiagramContext,
 ) => {
   el.style.display = 'none';
 
@@ -256,12 +273,13 @@ const makeDiagram = async (
     const { svg, bindFunctions } = await mermaid.render(
       id,
       properties.experimentalEntityNodes
-        ? await resolveEntityNodes(diagramText, entityNodeLookup)
+        ? await resolveEntityNodes(diagramText, entityNodeLookup, docsNamespace)
         : diagramText,
     );
     diagramElement.innerHTML = svg;
     bindFunctions?.(diagramElement);
     bindActorMenus(diagramElement);
+    bindAppLinks(diagramElement, navigateToAppPath);
 
     if (properties.enableZoom) {
       const svgEl = diagramElement.querySelector('svg');
@@ -284,6 +302,12 @@ export const MermaidAddon = (properties: MermaidProps) => {
   const candidates = useShadowRootElements<HTMLElement>(candidateSelectors);
   const theme = useTheme<BackstageTheme>();
   const entityNodeLookup = useEntityNodeLookup();
+  const docsNamespace = useTechDocsReaderPage().entityRef.namespace;
+  const navigateToAppPath = useNavigateToAppPath();
+  const diagramContext = useMemo<DiagramContext>(
+    () => ({ properties, entityNodeLookup, docsNamespace, navigateToAppPath }),
+    [properties, entityNodeLookup, docsNamespace, navigateToAppPath],
+  );
 
   const [mermaid, setMermaid] = useState<MermaidApi>();
 
@@ -355,15 +379,9 @@ export const MermaidAddon = (properties: MermaidProps) => {
         }
       }
 
-      makeDiagram(
-        mermaid,
-        candidate,
-        diagramText,
-        properties,
-        entityNodeLookup,
-      );
+      makeDiagram(mermaid, candidate, diagramText, diagramContext);
     });
-  }, [mermaid, candidates, properties, entityNodeLookup]);
+  }, [mermaid, candidates, diagramContext]);
 
   return null;
 };

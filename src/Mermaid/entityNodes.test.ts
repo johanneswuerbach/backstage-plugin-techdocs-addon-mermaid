@@ -20,8 +20,8 @@ describe('resolveEntityNodes', () => {
   it('replaces entity labels with titles and links the nodes', async () => {
     const text = [
       'flowchart LR',
-      '  sys["bs:system:my-system"]',
-      '  api(["bs:component:team-a/my-api"])',
+      '  sys["entity:system:my-system"]',
+      '  api(["entity:component:team-a/my-api"])',
       '  sys --> api',
     ].join('\n');
 
@@ -38,15 +38,23 @@ describe('resolveEntityNodes', () => {
   });
 
   it('handles nodes declared inline in edges', async () => {
-    const text = 'graph TD\n  a["bs:system:my-system"]-->b["Plain"]';
+    const text = 'graph TD\n  a["entity:system:my-system"]-->b["Plain"]';
 
     expect(await resolveEntityNodes(text, lookup)).toBe(
       'graph TD\n  a["My System"]-->b["Plain"]\n  click a href "/catalog/default/system/my-system"',
     );
   });
 
+  it('defaults the namespace to the one of the docs entity', async () => {
+    const text = 'graph TD\n  a["entity:component:my-api"]';
+
+    expect(await resolveEntityNodes(text, lookup, 'team-a')).toBe(
+      'graph TD\n  a["My #quot;API#quot; #35;1"]\n  click a href "/catalog/team-a/component/my-api"',
+    );
+  });
+
   it('looks up each entity once', async () => {
-    const text = 'graph TD\n  a["bs:system:my-system"]\n  b["bs:system:my-system"]';
+    const text = 'graph TD\n  a["entity:system:my-system"]\n  b["entity:system:my-system"]';
 
     await resolveEntityNodes(text, lookup);
 
@@ -60,14 +68,14 @@ describe('resolveEntityNodes', () => {
       '---',
       "%%{init: {'theme': 'dark'}}%%",
       'flowchart LR',
-      '  a["bs:system:my-system"]',
+      '  a["entity:system:my-system"]',
     ].join('\n');
 
     expect(await resolveEntityNodes(text, lookup)).toContain('a["My System"]');
   });
 
   it('leaves the node unlinked when there is no entity route', async () => {
-    const text = 'graph TD\n  a["bs:system:my-system"]';
+    const text = 'graph TD\n  a["entity:system:my-system"]';
 
     expect(
       await resolveEntityNodes(text, { ...lookup, url: () => undefined }),
@@ -75,14 +83,14 @@ describe('resolveEntityNodes', () => {
   });
 
   it('leaves refs without a kind alone', async () => {
-    const text = 'graph TD\n  a["bs:my-system"]';
+    const text = 'graph TD\n  a["entity:my-system"]';
 
     expect(await resolveEntityNodes(text, lookup)).toBe(text);
     expect(lookup.title).not.toHaveBeenCalled();
   });
 
   it('only changes flowcharts', async () => {
-    const text = 'sequenceDiagram\n  participant a as "bs:system:my-system"';
+    const text = 'sequenceDiagram\n  participant a as "entity:system:my-system"';
 
     expect(await resolveEntityNodes(text, lookup)).toBe(text);
   });

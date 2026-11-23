@@ -28,5 +28,5 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-  sys["bs:system:my-system"] --> other["Not an entity"]
+  sys["entity:system:my-system"] --> other["Not an entity"]
 ```

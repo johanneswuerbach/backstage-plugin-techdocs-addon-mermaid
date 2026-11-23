@@ -383,7 +383,7 @@ describe('Mermaid', () => {
         .withDom(
           <body>
             <pre className="mermaid">
-              <code>{'flowchart LR\n  sys["bs:system:my-system"]'}</code>
+              <code>{'flowchart LR\n  sys["entity:system:my-system"]'}</code>
             </pre>
           </body>,
         )
@@ -395,7 +395,7 @@ describe('Mermaid', () => {
 
     it('leaves entity labels alone by default', async () => {
       expect(await renderEntityDiagram({})).toBe(
-        'flowchart LR\n  sys["bs:system:my-system"]',
+        'flowchart LR\n  sys["entity:system:my-system"]',
       );
     });
 

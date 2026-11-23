@@ -10,15 +10,15 @@ export interface EntityNodeLookup {
   url(ref: CompoundEntityRef): string | undefined;
 }
 
-const labelPrefix = 'bs:';
+const labelPrefix = 'entity:';
 
 /**
- * A flowchart node whose label is `bs:<entity ref>`, in any node shape:
- * `api["bs:component:my-api"]`, `db[("bs:resource:my-db")]`, ...
+ * A flowchart node whose label is `entity:<entity ref>`, in any node shape:
+ * `api["entity:component:my-api"]`, `db[("entity:resource:my-db")]`, ...
  * Captures the node id, the shape opening and the entity ref.
  */
 const entityNodePattern =
-  /(^|[\s;&>-])([\w-]+)(\s*[[({>/\\]+)"bs:([^"\s]+)"/gm;
+  /(^|[\s;&>-])([\w-]+)(\s*[[({>/\\]+)"entity:([^"\s]+)"/gm;
 
 /** Front matter (`---` ... `---`), `%%` directives and comments, blank lines. */
 const preamblePattern = /^(?:\s*---\n[\s\S]*?\n---\s*\n)?(?:\s*(?:%%.*)?\n)*/;
@@ -31,18 +31,21 @@ const escapeLabel = (label: string) =>
   label.replace(/#/g, '#35;').replace(/"/g, '#quot;');
 
 /**
- * Turns flowchart nodes labelled `"bs:<entity ref>"` into catalog entities:
+ * Turns flowchart nodes labelled `"entity:<entity ref>"` into catalog entities:
  * the label becomes the entity's title and the node links to the entity.
  *
  * Diagrams stay valid mermaid without this step, so they still render in
  * other markdown previews, just with the raw ref as label.
  *
  * Refs use the standard catalog format, `<kind>:[<namespace>/]<name>`, for
- * example `bs:system:my-system`. Refs that don't parse are left as they are.
+ * example `entity:system:my-system`. Like relations in catalog-info.yaml, a
+ * ref without a namespace uses the namespace of the entity whose docs these
+ * are (`defaultNamespace`). Refs that don't parse are left as they are.
  */
 export async function resolveEntityNodes(
   text: string,
   lookup: EntityNodeLookup,
+  defaultNamespace = 'default',
 ): Promise<string> {
   if (!text.includes(`"${labelPrefix}`) || !isFlowchart(text)) {
     return text;
@@ -53,7 +56,7 @@ export async function resolveEntityNodes(
     const raw = match[4];
     if (!refs.has(raw)) {
       try {
-        refs.set(raw, parseEntityRef(raw, { defaultNamespace: 'default' }));
+        refs.set(raw, parseEntityRef(raw, { defaultNamespace }));
       } catch {
         // Not a valid entity ref (e.g. the kind is missing), leave it alone.
       }

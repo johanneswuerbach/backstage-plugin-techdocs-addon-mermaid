@@ -44,7 +44,7 @@ export type MermaidProps = {
      */
     enableZoom?: boolean;
     /**
-     * Turns flowchart nodes labelled `"bs:<entity ref>"` into catalog
+     * Turns flowchart nodes labelled `"entity:<entity ref>"` into catalog
      * entities, showing the entity's title and linking to its page.
      * Off by default.
      *
