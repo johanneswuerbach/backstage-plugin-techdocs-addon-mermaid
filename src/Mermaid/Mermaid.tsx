@@ -46,8 +46,13 @@ import { bindAppLinks, useNavigateToAppPath } from './links';
 /**
  * How long a diagram waits for entity titles from the catalog before it
  * renders with the titles derived from the entity refs instead.
+ *
+ * Mermaid can't update a diagram in place, and titles change the node sizes
+ * and layout, so rendering first and again once titles arrive would make the
+ * diagram jump. Lookups are batched and cached, so they usually answer well
+ * within this.
  */
-const entityTitleTimeoutMs = 3000;
+const entityTitleTimeoutMs = 1000;
 
 /**
  * The catalog entity page route, or undefined when the app has none.
