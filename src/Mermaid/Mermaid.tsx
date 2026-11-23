@@ -14,9 +14,21 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PaletteType, useTheme } from '@material-ui/core';
 
+import { stringifyEntityRef } from '@backstage/catalog-model';
+import {
+  RouteFunc,
+  useApiHolder,
+  useRouteRef,
+} from '@backstage/core-plugin-api';
+import {
+  defaultEntityPresentation,
+  entityPresentationApiRef,
+  entityRouteParams,
+  entityRouteRef,
+} from '@backstage/plugin-catalog-react';
 import { useShadowRootElements } from '@backstage/plugin-techdocs-react';
 import type { MermaidConfig } from 'mermaid';
 import { isMermaidCode } from './hooks';
@@ -25,6 +37,61 @@ import { MermaidProps } from './props';
 import { BackstageTheme } from '@backstage/theme';
 import { ZoomHandler } from './zoomHandler';
 import { deepMerge } from './utils';
+import { EntityNodeLookup, resolveEntityNodes } from './entityNodes';
+
+/**
+ * How long a diagram waits for entity titles from the catalog before it
+ * renders with the titles derived from the entity refs instead.
+ */
+const entityTitleTimeoutMs = 3000;
+
+/**
+ * The catalog entity page route, or undefined when the app has none.
+ */
+const useEntityRoute = ():
+  | RouteFunc<{ name: string; kind: string; namespace: string }>
+  | undefined => {
+  try {
+    // useRouteRef calls all of its own hooks before it throws for a route
+    // that isn't mounted, so catching that keeps the hook order stable.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useRouteRef(entityRouteRef);
+  } catch {
+    return undefined;
+  }
+};
+
+/**
+ * Resolves `bs:` entity nodes through the catalog's presentation API, which
+ * batches and caches lookups, and links them with the app's entity route.
+ */
+const useEntityNodeLookup = (): EntityNodeLookup => {
+  const presentationApi = useApiHolder().get(entityPresentationApiRef);
+  const entityRoute = useEntityRoute();
+
+  return useMemo(
+    () => ({
+      async title(ref) {
+        if (!presentationApi) {
+          return defaultEntityPresentation(ref).primaryTitle;
+        }
+        const presentation = presentationApi.forEntity(stringifyEntityRef(ref));
+        const fallback = new Promise<typeof presentation.snapshot>(resolve =>
+          setTimeout(() => resolve(presentation.snapshot), entityTitleTimeoutMs),
+        );
+        const snapshot = await Promise.race([
+          presentation.promise,
+          fallback,
+        ]).catch(() => presentation.snapshot);
+        return snapshot.primaryTitle;
+      },
+      url(ref) {
+        return entityRoute?.(entityRouteParams(ref));
+      },
+    }),
+    [presentationApi, entityRoute],
+  );
+};
 
 export function selectConfig(
   backstagePalette: PaletteType,
@@ -165,6 +232,7 @@ const makeDiagram = async (
   el: HTMLElement,
   diagramText: string,
   properties: MermaidProps,
+  entityNodeLookup: EntityNodeLookup,
 ) => {
   el.style.display = 'none';
 
@@ -178,7 +246,10 @@ const makeDiagram = async (
 
   const id = `mermaid-${diagramId++}`;
   try {
-    const { svg, bindFunctions } = await mermaid.render(id, diagramText);
+    const { svg, bindFunctions } = await mermaid.render(
+      id,
+      await resolveEntityNodes(diagramText, entityNodeLookup),
+    );
     diagramElement.innerHTML = svg;
     bindFunctions?.(diagramElement);
     bindActorMenus(diagramElement);
@@ -203,6 +274,7 @@ const makeDiagram = async (
 export const MermaidAddon = (properties: MermaidProps) => {
   const candidates = useShadowRootElements<HTMLElement>(candidateSelectors);
   const theme = useTheme<BackstageTheme>();
+  const entityNodeLookup = useEntityNodeLookup();
 
   const [mermaid, setMermaid] = useState<MermaidApi>();
 
@@ -274,9 +346,15 @@ export const MermaidAddon = (properties: MermaidProps) => {
         }
       }
 
-      makeDiagram(mermaid, candidate, diagramText, properties);
+      makeDiagram(
+        mermaid,
+        candidate,
+        diagramText,
+        properties,
+        entityNodeLookup,
+      );
     });
-  }, [mermaid, candidates, properties]);
+  }, [mermaid, candidates, properties, entityNodeLookup]);
 
   return null;
 };

@@ -19,7 +19,7 @@ const appDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 const docsDir = join(appDir, 'e2e', 'docs');
 const bundleDir = join(appDir, 'dist');
 const pageUrl = 'http://localhost:3000/docs/default/component/local/';
-const expectedDiagrams = 3;
+const expectedDiagrams = 4;
 
 const chromePaths = [
   process.env.CHROME_PATH,
@@ -173,6 +173,25 @@ async function run() {
       fail(`Unexpected link in menu: ${opened.href}`);
     }
     console.log('✓ sequence diagram link menu opens');
+
+    // `bs:` nodes link to the catalog. The preview app has no catalog
+    // backend, so the title falls back to the name from the entity ref.
+    const entityLink = await page.evaluate(() => {
+      const root = [...document.querySelectorAll('*')].find(
+        element => element.shadowRoot,
+      ).shadowRoot;
+      const link = [...root.querySelectorAll('div.mermaid a')].find(a =>
+        a.href?.baseVal?.startsWith('/catalog/'),
+      );
+      return link && { href: link.href.baseVal, text: link.textContent.trim() };
+    });
+    if (entityLink?.href !== '/catalog/default/system/my-system') {
+      fail(`Expected a catalog link for bs:system:my-system, found ${JSON.stringify(entityLink)}`);
+    }
+    if (entityLink.text !== 'my-system') {
+      fail(`Unexpected entity node title: ${entityLink.text}`);
+    }
+    console.log('✓ catalog entity node links to the entity');
   } finally {
     await browser?.close();
     stopServer(server);

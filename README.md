@@ -164,6 +164,20 @@ No code changes are needed beyond the standard module registration shown in
 the [Getting Started](#getting-started) section — the addon reads the
 configuration automatically at runtime.
 
+## Catalog Entities in Flowcharts (Experimental)
+
+Label a flowchart node `bs:<entity ref>` to show a catalog entity. The addon replaces the label with the entity's title from the catalog and links the node to the entity's page:
+
+~~~markdown
+```mermaid
+flowchart LR
+    web["bs:component:web-app"] --> api["bs:component:payments/payments-api"]
+    api --> db[("bs:resource:payments-db")]
+```
+~~~
+
+Refs use the catalog's standard format, `<kind>:[<namespace>/]<name>`, and the namespace defaults to `default`. Titles come from the catalog's entity presentation API, which batches and caches lookups across diagrams. If the catalog doesn't answer within 3 seconds, the node shows the entity's name instead. Without this addon, for example in other markdown previews, the diagram still renders and shows the raw refs as labels.
+
 ## Zoom and Pan Functionality
 
 The plugin supports interactive zoom and pan functionality for Mermaid diagrams. This allows users to:
