@@ -27,3 +27,24 @@ jobs:
     - run: yarn tsc:full
     - run: yarn build
     - run: yarn test
+
+  e2e:
+    runs-on: ubuntu-latest
+
+    name: TechDocs preview e2e
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24.x
+        cache: yarn
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: pip
+        cache-dependency-path: preview-app/e2e/requirements.txt
+    - run: pip install -r preview-app/e2e/requirements.txt
+    - run: yarn install --immutable
+    - run: yarn workspace techdocs-mermaid-preview-app build
+    - run: yarn workspace techdocs-mermaid-preview-app test:e2e

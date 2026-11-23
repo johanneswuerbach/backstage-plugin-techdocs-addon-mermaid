@@ -1,0 +1,53 @@
+{
+  "name": "techdocs-mermaid-preview-app",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TechDocs CLI preview app with the mermaid addon, for `techdocs-cli serve --preview-app-bundle-path`",
+  "license": "Apache-2.0",
+  "backstage": {
+    "role": "frontend"
+  },
+  "scripts": {
+    "build": "backstage-cli package build --config ./app-config.yaml",
+    "start": "backstage-cli package start --config ./app-config.yaml",
+    "test:e2e": "node e2e/smoke.mjs"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "dependencies": {
+    "@backstage/catalog-model": "backstage:^",
+    "@backstage/cli": "backstage:^",
+    "@backstage/config": "backstage:^",
+    "@backstage/core-app-api": "backstage:^",
+    "@backstage/core-components": "backstage:^",
+    "@backstage/frontend-defaults": "backstage:^",
+    "@backstage/frontend-plugin-api": "backstage:^",
+    "@backstage/integration-react": "backstage:^",
+    "@backstage/plugin-app-react": "backstage:^",
+    "@backstage/plugin-catalog": "backstage:^",
+    "@backstage/plugin-techdocs": "backstage:^",
+    "@backstage/plugin-techdocs-react": "backstage:^",
+    "@backstage/ui": "backstage:^",
+    "@material-ui/core": "^4.12.2",
+    "@material-ui/icons": "^4.9.1",
+    "backstage-plugin-techdocs-addon-mermaid": "workspace:^",
+    "react": "^18.0.2",
+    "react-dom": "^18.0.2",
+    "react-router-dom": "^6.30.2"
+  },
+  "devDependencies": {
+    "@techdocs/cli": "backstage:^",
+    "@types/react-dom": "^18",
+    "puppeteer-core": "^24.10.0"
+  }
+}
