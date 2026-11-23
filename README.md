@@ -34,9 +34,11 @@ Backstage v1.2+
    {techDocsPage}
    <TechDocsAddons>
      {/*...*/}
-     <Mermaid config={{ theme: "forest", themeVariables: { lineColor: "#000000" } }} />
+     <Mermaid />
    </TechDocsAddons>
    ```
+
+   Diagrams follow the Backstage light/dark mode automatically. See [Mermaid Configuration](#mermaid-configuration) to customize them.
 
    - **New Frontend System**: Enable the addon module within `App.tsx`:
 
@@ -76,11 +78,15 @@ graph TD;
 
 ## Mermaid Configuration
 
+Without any configuration, diagrams follow the Backstage theme: they use Mermaid's `default` theme in light mode and its `dark` theme in dark mode.
+
 The plugin supports customizing the Mermaid configuration for light and dark themes, as well as a shared base configuration. The available options are:
 
 - `lightConfig` — Mermaid configuration applied when the Backstage theme is set to light mode.
-- `darkConfig` — Mermaid configuration applied when the Backstage theme is set to dark mode.
+- `darkConfig` — Mermaid configuration applied when the Backstage theme is set to dark mode. If it doesn't set a `theme`, Mermaid's `dark` theme is used.
 - `config` — Shared configuration that is deep-merged on top of the selected theme configuration. Values here take precedence over `lightConfig`/`darkConfig`.
+
+> **Note:** Setting `theme` in `config` applies that theme in both light and dark mode, which turns off the automatic switching. To keep diagrams in step with the Backstage theme, set `theme` in `lightConfig` and `darkConfig` instead, and keep shared settings such as fonts in `config`.
 
 Each option follows this schema:
 

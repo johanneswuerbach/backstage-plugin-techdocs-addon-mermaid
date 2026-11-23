@@ -296,6 +296,79 @@ describe('Mermaid', () => {
     render.mockRestore();
   });
 
+  describe('sequence diagram links', () => {
+    const svgPrototype = SVGElement.prototype as any;
+    const original = {
+      getBBox: svgPrototype.getBBox,
+      getComputedTextLength: svgPrototype.getComputedTextLength,
+    };
+
+    beforeAll(() => {
+      // jsdom has no layout; mermaid measures text while drawing actors.
+      svgPrototype.getBBox = () => ({ x: 0, y: 0, width: 50, height: 20 });
+      svgPrototype.getComputedTextLength = () => 50;
+    });
+
+    afterAll(() => {
+      svgPrototype.getBBox = original.getBBox;
+      svgPrototype.getComputedTextLength = original.getComputedTextLength;
+    });
+
+    const renderSequence = async (props: MermaidProps = {}) => {
+      await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid {...props} />])
+        .withDom(
+          <body>
+            <pre className="mermaid" data-testid="mermaid-test">
+              <code>
+                {[
+                  'sequenceDiagram',
+                  '  participant Alice',
+                  '  participant John',
+                  '  links Alice: {"Dashboard": "https://dashboard.example.com/alice"}',
+                  '  Alice->>John: Hello',
+                ].join('\n')}
+              </code>
+            </pre>
+          </body>,
+        )
+        .renderWithEffects();
+
+      let diagram: HTMLElement | undefined;
+      await waitFor(() => {
+        diagram = screen.getByShadowTestId('mermaid-test')
+          .nextSibling as HTMLElement;
+        expect(diagram?.querySelector('g.actorPopupMenu')).not.toBeNull();
+      });
+      return diagram!;
+    };
+
+    it.each(['strict', 'loose'] as const)(
+      'toggles the actor link menu inside the shadow root (%s)',
+      async (securityLevel) => {
+        const diagram = await renderSequence({ config: { securityLevel } });
+        const popup = diagram.querySelector<SVGGElement>(
+          'g.actorPopupMenu',
+        )!;
+        const lifeline = diagram.querySelector(
+          `[id="${popup.id.replace(/_popup$/, '')}"]`,
+        )!;
+        const actor = lifeline.parentElement!;
+
+        expect(popup.querySelector('a')).toHaveAttribute(
+          'href',
+          'https://dashboard.example.com/alice',
+        );
+        expect(actor).not.toHaveAttribute('onclick');
+
+        actor.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        expect(popup.style.display).toBe('block');
+
+        actor.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        expect(popup.style.display).toBe('none');
+      },
+    );
+  });
+
   describe('error handling', () => {
     afterEach(() => {
       jest.restoreAllMocks();
