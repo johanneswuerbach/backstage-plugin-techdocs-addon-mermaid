@@ -1,0 +1,3 @@
+site_name: Mermaid smoke test
+plugins:
+  - techdocs-core

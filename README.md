@@ -76,6 +76,24 @@ graph TD;
 
 ~~~
 
+## Preview Docs Locally with `techdocs-cli`
+
+`techdocs-cli serve` previews docs in a built-in Backstage app that doesn't include any addons, so diagrams show up as code blocks. Each release of this plugin comes with a preview app that includes the addon. Download it and pass it to `techdocs-cli` with `--preview-app-bundle-path`:
+
+```sh
+mkdir -p .techdocs-preview
+curl -fsSL https://github.com/johanneswuerbach/backstage-plugin-techdocs-addon-mermaid/releases/latest/download/techdocs-preview-app.tar.gz | tar -xz -C .techdocs-preview
+npx @techdocs/cli serve --preview-app-bundle-path .techdocs-preview
+```
+
+Replace `latest/download` with `download/v<version>` to pin a release. The preview app is a complete, self-contained app, so it works whichever Backstage version your own instance runs.
+
+A few things to know:
+
+- Diagrams use the addon's default configuration. Settings from your Backstage `app-config.yaml`, such as `lightConfig` or `enableZoom`, don't apply.
+- Keep the preview on its default port (`--preview-app-port 3000`), which the preview app expects.
+- Add `.techdocs-preview/` to your `.gitignore`.
+
 ## Mermaid Configuration
 
 Without any configuration, diagrams follow the Backstage theme: they use Mermaid's `default` theme in light mode and its `dark` theme in dark mode.
@@ -348,7 +366,15 @@ After making changes to the plugin and having unit tests pass, to do manual end-
 
 #### Option #1 Techdocs CLI
 
-You can use the [TechDocs CLI](https://backstage.io/docs/features/techdocs/cli/) to test against a local docs folder. You will need to customize the preview app bundle for that to work as the addon is not included in the [standard bundle](https://github.com/backstage/techdocs-cli/blob/main/packages/embedded-techdocs-app/src/App.tsx). Review the TechDoc's documentation for further instructions.
+The `preview-app` workspace is a TechDocs CLI preview app that uses the addon straight from `src/`. Build it and serve a docs folder with it, for example the sample docs:
+
+```sh
+yarn workspace techdocs-mermaid-preview-app build
+cd sampledocs
+npx @techdocs/cli serve --preview-app-bundle-path ../preview-app/dist
+```
+
+`yarn workspace techdocs-mermaid-preview-app test:e2e` runs the same smoke test as CI. See [preview-app/README.md](preview-app/README.md) for its requirements.
 
 #### Option #2 Use a Remote Location
 

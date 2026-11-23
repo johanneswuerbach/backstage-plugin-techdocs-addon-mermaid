@@ -40,3 +40,33 @@ jobs:
       env:
         NPM_DIST_TAG: ${{ github.event.release.prerelease && 'next' || 'latest' }}
       run: npm publish "${RUNNER_TEMP}/package.tgz" --access public --tag "$NPM_DIST_TAG"
+
+  # Builds the TechDocs CLI preview app with this addon and attaches it to the
+  # release, for `techdocs-cli serve --preview-app-bundle-path`.
+  preview-app:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        persist-credentials: false
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: yarn
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    - run: pip install -r preview-app/e2e/requirements.txt
+    - run: yarn install --immutable
+    - run: yarn workspace techdocs-mermaid-preview-app build
+    - run: yarn workspace techdocs-mermaid-preview-app test:e2e
+    # Source maps triple the size and aren't needed to preview docs.
+    - run: tar --exclude='*.map' -czf "${RUNNER_TEMP}/techdocs-preview-app.tar.gz" -C preview-app/dist .
+    - name: Attach to release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
+      run: gh release upload "$RELEASE_TAG" "${RUNNER_TEMP}/techdocs-preview-app.tar.gz" --repo "$GITHUB_REPOSITORY" --clobber

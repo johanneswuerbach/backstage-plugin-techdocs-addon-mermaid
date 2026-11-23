@@ -37,6 +37,10 @@
     "./alpha": "./src/alpha.ts",
     "./package.json": "./package.json"
   },
+  "workspaces": [
+    ".",
+    "preview-app"
+  ],
   "scripts": {
     "start": "backstage-cli package start",
     "build": "backstage-cli package build",

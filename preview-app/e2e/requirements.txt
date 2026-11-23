@@ -1,0 +1,2 @@
+# mkdocs for `techdocs-cli serve --no-docker` in the e2e smoke test
+mkdocs-techdocs-core==1.7.1

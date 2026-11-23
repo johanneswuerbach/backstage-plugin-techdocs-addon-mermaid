@@ -2,7 +2,8 @@
   "extends": "@backstage/cli/config/tsconfig.json",
   "include": [
     "src",
-    "dev"
+    "dev",
+    "preview-app/src"
   ],
   "compilerOptions": {
     "outDir": "dist-types",

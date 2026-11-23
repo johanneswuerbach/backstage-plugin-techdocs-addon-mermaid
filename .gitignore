@@ -2,6 +2,7 @@ dist/
 dist-types/
 node_modules
 .idea/
-app-config.yaml
+/app-config.yaml
 .npmrc
 .yarn/install-state.gz
+.venv/
