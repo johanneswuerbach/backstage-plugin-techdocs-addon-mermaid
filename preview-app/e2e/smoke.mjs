@@ -19,7 +19,7 @@ const appDir = join(dirname(fileURLToPath(import.meta.url)), '..');
 const docsDir = join(appDir, 'e2e', 'docs');
 const bundleDir = join(appDir, 'dist');
 const pageUrl = 'http://localhost:3000/docs/default/component/local/';
-const expectedDiagrams = 3;
+const expectedDiagrams = 4;
 
 const chromePaths = [
   process.env.CHROME_PATH,
@@ -173,6 +173,57 @@ async function run() {
       fail(`Unexpected link in menu: ${opened.href}`);
     }
     console.log('✓ sequence diagram link menu opens');
+
+    // `entity:` nodes link to the catalog. The preview app has no catalog
+    // backend, so the title falls back to the name from the entity ref.
+    const entityLink = await page.evaluate(() => {
+      const root = [...document.querySelectorAll('*')].find(
+        element => element.shadowRoot,
+      ).shadowRoot;
+      const link = [...root.querySelectorAll('div.mermaid a')].find(a =>
+        a.href?.baseVal?.startsWith('/catalog/'),
+      );
+      return link && { href: link.href.baseVal, text: link.textContent.trim() };
+    });
+    if (entityLink?.href !== '/catalog/default/system/my-system') {
+      fail(`Expected a catalog link for entity:system:my-system, found ${JSON.stringify(entityLink)}`);
+    }
+    if (entityLink.text !== 'my-system') {
+      fail(`Unexpected entity node title: ${entityLink.text}`);
+    }
+    console.log('✓ catalog entity node links to the entity');
+
+    // Clicking it navigates within the app: the URL changes, the page doesn't
+    // reload, so a value set on window survives.
+    await page.evaluate(() => {
+      window.__beforeEntityClick = true;
+    });
+    const entityNode = await page.evaluateHandle(() => {
+      const root = [...document.querySelectorAll('*')].find(
+        element => element.shadowRoot,
+      ).shadowRoot;
+      return [...root.querySelectorAll('div.mermaid a')]
+        .find(a => a.href?.baseVal?.startsWith('/catalog/'))
+        .querySelector('rect, polygon, path');
+    });
+    await entityNode.click();
+    await page
+      .waitForFunction(
+        () => window.location.pathname === '/catalog/default/system/my-system',
+        { timeout: 10_000 },
+      )
+      .catch(() => {});
+    const afterClick = await page.evaluate(() => ({
+      path: window.location.pathname,
+      sameDocument: window.__beforeEntityClick === true,
+    }));
+    if (afterClick.path !== '/catalog/default/system/my-system') {
+      fail(`Clicking the entity node went to ${afterClick.path}`);
+    }
+    if (!afterClick.sameDocument) {
+      fail('Clicking the entity node reloaded the page');
+    }
+    console.log('✓ clicking an entity node navigates within the app');
   } finally {
     await browser?.close();
     stopServer(server);

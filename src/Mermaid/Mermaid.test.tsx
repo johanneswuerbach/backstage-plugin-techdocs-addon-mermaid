@@ -369,6 +369,48 @@ describe('Mermaid', () => {
     );
   });
 
+  describe('experimental entity nodes', () => {
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    const renderEntityDiagram = async (props: MermaidProps) => {
+      const render = jest
+        .spyOn(mermaid, 'render')
+        .mockResolvedValue({ svg: '<svg></svg>' } as any);
+
+      await TechDocsAddonTester.buildAddonsInTechDocs([<Mermaid {...props} />])
+        .withDom(
+          <body>
+            <pre className="mermaid">
+              <code>{'flowchart LR\n  sys["entity:system:my-system"]'}</code>
+            </pre>
+          </body>,
+        )
+        .renderWithEffects();
+
+      await waitFor(() => expect(render).toHaveBeenCalled());
+      return render.mock.calls[0][1];
+    };
+
+    it('leaves entity labels alone by default', async () => {
+      expect(await renderEntityDiagram({})).toBe(
+        'flowchart LR\n  sys["entity:system:my-system"]',
+      );
+    });
+
+    it('resolves entity labels when enabled', async () => {
+      // The tester's catalog returns "Test Entity" for every entity.
+      expect(await renderEntityDiagram({ experimentalEntityNodes: true })).toBe(
+        [
+          'flowchart LR',
+          '  sys["Test Entity"]',
+          '  click sys href "/catalog/default/system/my-system"',
+        ].join('\n'),
+      );
+    });
+  });
+
   describe('error handling', () => {
     afterEach(() => {
       jest.restoreAllMocks();

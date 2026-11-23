@@ -7,7 +7,7 @@ It has two jobs:
 - **Release asset.** The publish workflow builds it and attaches `techdocs-preview-app.tar.gz` to each GitHub release, for `techdocs-cli serve --preview-app-bundle-path`. See "Preview Docs Locally with `techdocs-cli`" in the main README.
 - **End-to-end test.** `e2e/smoke.mjs` serves `e2e/docs` through `techdocs-cli` with the built app and checks in Chrome that diagrams render inside the TechDocs shadow root and that sequence diagram link menus open. CI runs it on every pull request.
 
-The addon is linked from this repo's `src/` as a workspace, so both use the current code.
+`src/App.tsx` imports the addon straight from this repo's `src/`, so both use the current code. The app is a Yarn workspace so that it shares one copy of React, react-router and the Backstage packages with the addon.
 
 ## Running the smoke test
 

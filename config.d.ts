@@ -30,6 +30,15 @@ export interface Config {
          */
         enableZoom?: boolean;
 
+        /**
+         * Experimental: turn flowchart nodes labelled "entity:<entity ref>" into
+         * catalog entities with their title and a link to their page. The
+         * syntax and behavior may change in any release. Off by default.
+         *
+         * @visibility frontend
+         */
+        experimentalEntityNodes?: boolean;
+
         zoomOptions?: {
           /**
            * D3 zoom scale extent as [min, max].

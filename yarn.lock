@@ -2301,7 +2301,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@backstage/plugin-catalog-react@npm:^4.0.0":
+"@backstage/plugin-catalog-react@backstage:^::backstage=1.57.1&npm=4.0.0, @backstage/plugin-catalog-react@npm:^4.0.0":
   version: 4.0.0
   resolution: "@backstage/plugin-catalog-react@npm:4.0.0"
   dependencies:
@@ -5636,13 +5636,6 @@ __metadata:
     generic-pool: "npm:3.9.0"
     yallist: "npm:4.0.0"
   checksum: 10c0/216c61f5aa2fef212386c2ef5b5f6d10f44244f6928682f370e190402d23338e11260377c08e87dd6d678408fa7c0a6b7bb5571ecadb830abfa3d7355b9eff1e
-  languageName: node
-  linkType: hard
-
-"@remix-run/router@npm:1.23.0":
-  version: 1.23.0
-  resolution: "@remix-run/router@npm:1.23.0"
-  checksum: 10c0/eaef5cb46a1e413f7d1019a75990808307e08e53a39d4cf69c339432ddc03143d725decef3d6b9b5071b898da07f72a4a57c4e73f787005fcf10162973d8d7d7
   languageName: node
   linkType: hard
 
@@ -9004,10 +8997,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"backstage-plugin-techdocs-addon-mermaid@workspace:., backstage-plugin-techdocs-addon-mermaid@workspace:^":
+"backstage-plugin-techdocs-addon-mermaid@workspace:.":
   version: 0.0.0-use.local
   resolution: "backstage-plugin-techdocs-addon-mermaid@workspace:."
   dependencies:
+    "@backstage/catalog-model": "backstage:^"
     "@backstage/cli": "backstage:^"
     "@backstage/config": "backstage:^"
     "@backstage/core-app-api": "backstage:^"
@@ -9016,6 +9010,7 @@ __metadata:
     "@backstage/dev-utils": "backstage:^"
     "@backstage/frontend-plugin-api": "backstage:^"
     "@backstage/frontend-test-utils": "backstage:^"
+    "@backstage/plugin-catalog-react": "backstage:^"
     "@backstage/plugin-techdocs-addons-test-utils": "backstage:^"
     "@backstage/plugin-techdocs-react": "backstage:^"
     "@backstage/test-utils": "backstage:^"
@@ -20787,20 +20782,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.3.0":
-  version: 6.30.0
-  resolution: "react-router-dom@npm:6.30.0"
-  dependencies:
-    "@remix-run/router": "npm:1.23.0"
-    react-router: "npm:6.30.0"
-  peerDependencies:
-    react: ">=16.8"
-    react-dom: ">=16.8"
-  checksum: 10c0/262954ba894d6a241ceda5f61098f7d6a292d0018a6ebb9c9c67425b7deb6e59b6191a9233a03d38e287e60f7ac3702e9e84c8e20b39a6487698fe088b71e27a
-  languageName: node
-  linkType: hard
-
-"react-router-dom@npm:^6.30.2":
+"react-router-dom@npm:^6.3.0, react-router-dom@npm:^6.30.2":
   version: 6.30.6
   resolution: "react-router-dom@npm:6.30.6"
   dependencies:
@@ -20810,17 +20792,6 @@ __metadata:
     react: ">=16.8"
     react-dom: ">=16.8"
   checksum: 10c0/57dbb2ae4ac787f78c4d10b764c1c5223635378033e33dda4e0a4417144ae847fb43dc98008075951826258287c27c67729ca713c90957cf2ecf9055561bdc2e
-  languageName: node
-  linkType: hard
-
-"react-router@npm:6.30.0":
-  version: 6.30.0
-  resolution: "react-router@npm:6.30.0"
-  dependencies:
-    "@remix-run/router": "npm:1.23.0"
-  peerDependencies:
-    react: ">=16.8"
-  checksum: 10c0/e6f20cf5c47ec057a057a4cfb9a55983d0a5b4b3314d20e07f0a70e59e004f51778d4dac415aee1e4e64db69cc4cd72e5acf8fd60dcf07d909895b8863b0b023
   languageName: node
   linkType: hard
 
@@ -23146,7 +23117,6 @@ __metadata:
     "@material-ui/icons": "npm:^4.9.1"
     "@techdocs/cli": "backstage:^"
     "@types/react-dom": "npm:^18"
-    backstage-plugin-techdocs-addon-mermaid: "workspace:^"
     puppeteer-core: "npm:^24.10.0"
     react: "npm:^18.0.2"
     react-dom: "npm:^18.0.2"

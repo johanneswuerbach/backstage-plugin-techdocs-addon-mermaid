@@ -80,6 +80,7 @@ export function readIconLoader(iconPackConfig: Config): IconLoader {
  *   techdocs.addons.mermaid.darkConfig              — MermaidConfig
  *   techdocs.addons.mermaid.config                  — MermaidConfig
  *   techdocs.addons.mermaid.enableZoom              — boolean (default: false)
+ *   techdocs.addons.mermaid.experimentalEntityNodes — boolean (default: false)
  *   techdocs.addons.mermaid.zoomOptions.scaleExtent  — [min, max]
  *   techdocs.addons.mermaid.zoomOptions.translateExtent — [[xmin, ymin], [xmax, ymax]]
  *   techdocs.addons.mermaid.iconPacks               — [{ name, icons? , package? }]
@@ -95,6 +96,8 @@ const ConfiguredMermaidAddon = () => {
     props.darkConfig = mermaidConfig.getOptional<MermaidConfig>("darkConfig");
     props.config = mermaidConfig.getOptional<MermaidConfig>("config");
     props.enableZoom = mermaidConfig.getOptionalBoolean("enableZoom") ?? false;
+    props.experimentalEntityNodes =
+      mermaidConfig.getOptionalBoolean("experimentalEntityNodes") ?? false;
 
     const zoomConfig = mermaidConfig.getOptionalConfig("zoomOptions");
     if (zoomConfig) {

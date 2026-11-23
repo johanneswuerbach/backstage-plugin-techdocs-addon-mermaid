@@ -14,10 +14,25 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { PaletteType, useTheme } from '@material-ui/core';
 
-import { useShadowRootElements } from '@backstage/plugin-techdocs-react';
+import { stringifyEntityRef } from '@backstage/catalog-model';
+import {
+  RouteFunc,
+  useApiHolder,
+  useRouteRef,
+} from '@backstage/core-plugin-api';
+import {
+  defaultEntityPresentation,
+  entityPresentationApiRef,
+  entityRouteParams,
+  entityRouteRef,
+} from '@backstage/plugin-catalog-react';
+import {
+  useShadowRootElements,
+  useTechDocsReaderPage,
+} from '@backstage/plugin-techdocs-react';
 import type { MermaidConfig } from 'mermaid';
 import { isMermaidCode } from './hooks';
 import { loadMermaid, MermaidApi } from './loadMermaid';
@@ -25,6 +40,74 @@ import { MermaidProps } from './props';
 import { BackstageTheme } from '@backstage/theme';
 import { ZoomHandler } from './zoomHandler';
 import { deepMerge } from './utils';
+import { EntityNodeLookup, resolveEntityNodes } from './entityNodes';
+import { bindAppLinks, useNavigateToAppPath } from './links';
+
+/**
+ * How long a diagram waits for entity titles from the catalog before it
+ * renders with the titles derived from the entity refs instead.
+ *
+ * Mermaid can't update a diagram in place, and titles change the node sizes
+ * and layout, so rendering first and again once titles arrive would make the
+ * diagram jump. Lookups are batched and cached, so they usually answer well
+ * within this.
+ */
+const entityTitleTimeoutMs = 1000;
+
+/**
+ * The catalog entity page route, or undefined when the app has none.
+ */
+const useEntityRoute = ():
+  | RouteFunc<{ name: string; kind: string; namespace: string }>
+  | undefined => {
+  try {
+    // useRouteRef calls all of its own hooks before it throws for a route
+    // that isn't mounted, so catching that keeps the hook order stable.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    return useRouteRef(entityRouteRef);
+  } catch {
+    return undefined;
+  }
+};
+
+/**
+ * Resolves `entity:` nodes through the catalog's presentation API, which
+ * batches and caches lookups, and links them with the app's entity route.
+ */
+const useEntityNodeLookup = (): EntityNodeLookup => {
+  const presentationApi = useApiHolder().get(entityPresentationApiRef);
+  const entityRoute = useEntityRoute();
+
+  return useMemo(
+    () => ({
+      async title(ref) {
+        const fallbackTitle = defaultEntityPresentation(ref).primaryTitle;
+        if (!presentationApi) {
+          return fallbackTitle;
+        }
+        try {
+          const presentation = presentationApi.forEntity(
+            stringifyEntityRef(ref),
+          );
+          const timeout = new Promise<undefined>(resolve =>
+            setTimeout(() => resolve(undefined), entityTitleTimeoutMs),
+          );
+          const snapshot =
+            (await Promise.race([presentation.promise, timeout])) ??
+            presentation.snapshot;
+          return snapshot?.primaryTitle ?? fallbackTitle;
+        } catch {
+          // A failing lookup shouldn't break the diagram.
+          return fallbackTitle;
+        }
+      },
+      url(ref) {
+        return entityRoute?.(entityRouteParams(ref));
+      },
+    }),
+    [presentationApi, entityRoute],
+  );
+};
 
 export function selectConfig(
   backstagePalette: PaletteType,
@@ -160,11 +243,25 @@ const bindActorMenus = (diagramElement: HTMLElement) => {
     });
 };
 
+/** What a diagram needs from the addon and the TechDocs page it's on. */
+type DiagramContext = {
+  properties: MermaidProps;
+  entityNodeLookup: EntityNodeLookup;
+  /** The namespace of the entity whose docs are shown. */
+  docsNamespace: string;
+  navigateToAppPath: (path: string) => void;
+};
+
 const makeDiagram = async (
   mermaid: MermaidApi,
   el: HTMLElement,
   diagramText: string,
-  properties: MermaidProps,
+  {
+    properties,
+    entityNodeLookup,
+    docsNamespace,
+    navigateToAppPath,
+  }: DiagramContext,
 ) => {
   el.style.display = 'none';
 
@@ -178,10 +275,16 @@ const makeDiagram = async (
 
   const id = `mermaid-${diagramId++}`;
   try {
-    const { svg, bindFunctions } = await mermaid.render(id, diagramText);
+    const { svg, bindFunctions } = await mermaid.render(
+      id,
+      properties.experimentalEntityNodes
+        ? await resolveEntityNodes(diagramText, entityNodeLookup, docsNamespace)
+        : diagramText,
+    );
     diagramElement.innerHTML = svg;
     bindFunctions?.(diagramElement);
     bindActorMenus(diagramElement);
+    bindAppLinks(diagramElement, navigateToAppPath);
 
     if (properties.enableZoom) {
       const svgEl = diagramElement.querySelector('svg');
@@ -203,6 +306,13 @@ const makeDiagram = async (
 export const MermaidAddon = (properties: MermaidProps) => {
   const candidates = useShadowRootElements<HTMLElement>(candidateSelectors);
   const theme = useTheme<BackstageTheme>();
+  const entityNodeLookup = useEntityNodeLookup();
+  const docsNamespace = useTechDocsReaderPage().entityRef.namespace;
+  const navigateToAppPath = useNavigateToAppPath();
+  const diagramContext = useMemo<DiagramContext>(
+    () => ({ properties, entityNodeLookup, docsNamespace, navigateToAppPath }),
+    [properties, entityNodeLookup, docsNamespace, navigateToAppPath],
+  );
 
   const [mermaid, setMermaid] = useState<MermaidApi>();
 
@@ -274,9 +384,9 @@ export const MermaidAddon = (properties: MermaidProps) => {
         }
       }
 
-      makeDiagram(mermaid, candidate, diagramText, properties);
+      makeDiagram(mermaid, candidate, diagramText, diagramContext);
     });
-  }, [mermaid, candidates, properties]);
+  }, [mermaid, candidates, diagramContext]);
 
   return null;
 };

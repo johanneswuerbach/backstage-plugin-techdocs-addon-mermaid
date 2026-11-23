@@ -164,6 +164,39 @@ No code changes are needed beyond the standard module registration shown in
 the [Getting Started](#getting-started) section — the addon reads the
 configuration automatically at runtime.
 
+## Catalog Entities in Flowcharts (Experimental)
+
+> **Experimental:** this is off by default, and its syntax and behavior may change in any release, including minor ones.
+
+With `experimentalEntityNodes` turned on, you can label a flowchart node `entity:<entity ref>` to show a catalog entity. The addon replaces the label with the entity's title from the catalog and links the node to the entity's page:
+
+~~~markdown
+```mermaid
+flowchart LR
+    web["entity:component:web-app"] --> api["entity:component:payments/payments-api"]
+    api --> db[("entity:resource:payments-db")]
+```
+~~~
+
+Refs use the catalog's standard format, `<kind>:[<namespace>/]<name>`. Like relations in `catalog-info.yaml`, a ref without a namespace uses the namespace of the entity whose docs you're reading. Clicking a node opens the entity's page within Backstage, without reloading the page. Titles come from the catalog's entity presentation API, which batches and caches lookups across diagrams. If the catalog doesn't answer within a second, the node shows the entity's name instead, so a slow catalog delays a diagram by at most a second. Without this addon, for example in other markdown previews, the diagram still renders and shows the raw refs as labels.
+
+To turn it on in the **legacy frontend system**, pass the prop:
+
+```typescript jsx
+<Mermaid experimentalEntityNodes />
+```
+
+In the **new frontend system**, set it in `app-config.yaml`:
+
+```yaml
+techdocs:
+  addons:
+    mermaid:
+      experimentalEntityNodes: true
+```
+
+The [`techdocs-cli` preview app](#preview-docs-locally-with-techdocs-cli) has it turned on. It has no catalog, so entity nodes there show the entity's name.
+
 ## Zoom and Pan Functionality
 
 The plugin supports interactive zoom and pan functionality for Mermaid diagrams. This allows users to:

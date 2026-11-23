@@ -53,10 +53,12 @@
     "tsc:full": "tsc --skipLibCheck false --incremental false"
   },
   "dependencies": {
+    "@backstage/catalog-model": "backstage:^",
     "@backstage/config": "backstage:^",
     "@backstage/core-components": "backstage:^",
     "@backstage/core-plugin-api": "backstage:^",
     "@backstage/frontend-plugin-api": "backstage:^",
+    "@backstage/plugin-catalog-react": "backstage:^",
     "@backstage/plugin-techdocs-react": "backstage:^",
     "@backstage/theme": "backstage:^",
     "@iconify/types": "^2.0.0",

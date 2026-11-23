@@ -22,7 +22,8 @@ import catalogPlugin from '@backstage/plugin-catalog/alpha';
 
 import { appApis, techdocsPluginApis } from './apis';
 import { configLoader } from './config';
-import { techDocsMermaidAddonModule } from 'backstage-plugin-techdocs-addon-mermaid';
+// This repo's addon source, so the preview app always tests the current code.
+import { techDocsMermaidAddonModule } from '../../src';
 
 import { createFrontendModule } from '@backstage/frontend-plugin-api';
 import { SidebarContent } from './components/Sidebar';

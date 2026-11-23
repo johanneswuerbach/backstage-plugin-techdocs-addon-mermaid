@@ -23,3 +23,10 @@ sequenceDiagram
   links Alice: {"Dashboard": "https://example.com/alice"}
   Alice->>Bob: Hello
 ```
+
+## Catalog entities
+
+```mermaid
+flowchart LR
+  sys["entity:system:my-system"] --> other["Not an entity"]
+```
