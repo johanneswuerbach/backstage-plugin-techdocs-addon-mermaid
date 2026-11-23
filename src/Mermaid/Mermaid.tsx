@@ -130,6 +130,36 @@ const outermostCandidates = (elements: HTMLElement[]): HTMLElement[] => {
   );
 };
 
+/**
+ * Sequence diagram `links` open a popup menu through an inline `onclick` that
+ * calls `document.getElementById`. Mermaid strips that handler unless
+ * `securityLevel` is `loose`, and even then it can't reach elements inside the
+ * TechDocs shadow root. Bind the toggles here instead, scoped to the diagram.
+ */
+const bindActorMenus = (diagramElement: HTMLElement) => {
+  diagramElement
+    .querySelectorAll<SVGGElement>('g.actorPopupMenu[id$="_popup"]')
+    .forEach((popup) => {
+      // `sequence.forceMenus` renders the menus permanently open.
+      if (popup.getAttribute('display') !== 'none') {
+        return;
+      }
+      const lifelineId = popup.id.slice(0, -'_popup'.length);
+      const actor = diagramElement.querySelector(
+        `[id="${lifelineId}"]`,
+      )?.parentElement;
+      if (!actor) {
+        return;
+      }
+      actor.removeAttribute('onclick');
+      actor.style.cursor = 'pointer';
+      actor.addEventListener('click', () => {
+        popup.style.display =
+          popup.style.display === 'block' ? 'none' : 'block';
+      });
+    });
+};
+
 const makeDiagram = async (
   mermaid: MermaidApi,
   el: HTMLElement,
@@ -151,6 +181,7 @@ const makeDiagram = async (
     const { svg, bindFunctions } = await mermaid.render(id, diagramText);
     diagramElement.innerHTML = svg;
     bindFunctions?.(diagramElement);
+    bindActorMenus(diagramElement);
 
     if (properties.enableZoom) {
       const svgEl = diagramElement.querySelector('svg');
